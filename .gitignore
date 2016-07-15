@@ -1,0 +1,18 @@
+# Mac
+.DS_Store
+
+# IntelliJ IDEA
+.idea
+*.iml
+
+# JavaScript
+node_modules
+bower_components
+components
+
+# Build
+npm-debug.log
+dist
+.sass-cache
+.tmp
+temp
