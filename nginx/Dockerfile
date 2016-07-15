@@ -72,7 +72,7 @@ RUN  sed -i'' 's/\#define NGINX_VER          "nginx\/" NGINX_VERSION/#define NGI
 
 # Compile Ngnix
 # #######################
-
+# http://nginx.org/en/docs/configure.html
 RUN cd /tmp/nginx-${NGINX_VERSION} \
 && ./configure --prefix=/usr/local/nginx --pid-path=/run/nginx.pid \
       --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log \
