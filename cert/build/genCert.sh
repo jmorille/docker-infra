@@ -4,16 +4,18 @@
 # Apache https://httpd.apache.org/docs/2.4/fr/ssl/ssl_faq.html
 
 # Certificate
-export CA_PASS=agrica
-export CERT_PASS=acirga
+CA_PASS="za@%-<e*SzTt<r:k3CKX"
+CERT_PASS="NPRn[X(9M(@82<>d7@*z"
 
-export CA_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=DSI/CN=root"
+CA_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=DSI/CN=root"
 
-export CERT_CN="localhost"
-export CERT_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=IT/CN=$CERT_CN"
+CERT_CN="localhost"
+CERT_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=IT/CN=$CERT_CN"
 
+NUMBITS=4096
 
 # Gen Path
+export TARGET_DIR=tls
 export PUB_DIR=pub
 export PRIV_DIR=priv 
 
@@ -45,7 +47,7 @@ function createDestDir {
   
 function createCA {
   # Créez une clé privée RSA pour votre serveur (elle sera au format PEM et chiffrée en Triple-DES) :
-  openssl  genrsa  -passout pass:$CA_PASS -des3 -out $PRIV_DIR/ca.key 4096
+  openssl  genrsa  -passout pass:$CA_PASS -des3 -out $PRIV_DIR/ca.key $NUMBITS
 
   #  Vous pouvez afficher les détails de cette clé privée RSA à l'aide de la commande :
   # openssl rsa -noout -text -in $PRIV_DIR/ca.key
@@ -65,8 +67,9 @@ function printCA {
 }
 
 function createCertificateTls {
+ echo "### Generate Certificate for Domain $CERT_CN"
  # Créez une clé privée RSA pour votre serveur Apache (elle sera au format PEM et chiffrée en Triple-DES):
- openssl genrsa -passout pass:$CERT_PASS -des3 -out $PRIV_DIR/server.key 4096
+ openssl genrsa -passout pass:$CERT_PASS -des3 -out $PRIV_DIR/server.key $NUMBITS
 
  # Enregistrez le fichier $PRIV_DIR/server.key et le mot de passe éventuellement défini en lieu sûr. 
  # TODO
@@ -92,7 +95,7 @@ function printCsr {
 
 
 function signCertificateTlsWithCa {
-  # La commande qui signe la demande de certificat est la suivante : ==>  CRT ( = CSR + CA sign
+  # La commande qui signe la demande de certificat est la suivante : ==>  CRT = CSR + CA sign
   openssl x509 -passin pass:$CA_PASS -req -in $PUB_DIR/server.csr -out $PUB_DIR/server.crt -CA $PUB_DIR/ca.crt -CAkey $PRIV_DIR/ca.key -CAcreateserial -CAserial $PRIV_DIR/ca.srl
   
   # printCrt
@@ -152,7 +155,7 @@ function createNewKeystoreJKS {
    #keytool -certreq -keyalg RSA -alias server -file $PUB_DIR/server.csr -keystore server-keystore.jks -storepass $CA_PASS01 -keypass $CA_PASS01
    # keytool -genkey -alias server -keyalg rsa -keysize 1024 -keystore server-keystore.jks -storetype JKS -storepass $CA_PASS01 -keypass $CA_PASS01 -dname "CN=integ2, OU=COM, O=$CA_PASS, L=PARIS, ST=PARIS, C=FR, emailAddress=test@$CA_PASS.fr" 
 
-   keytool -genkey -alias tomcat -keyalg RSA  -keysize 4096 -keypass $CERT_PASS -keystore $FILE_KEYSTORE_JKS -storetype JKS -storepass $KEYSTORE_JKS_PASS -dname "CN=integ2, OU=COM, O=Organisation, L=PARIS, ST=PARIS, C=FR, emailAddress=test@organisation.fr"
+   keytool -genkey -alias tomcat -keyalg RSA  -keysize $NUMBITS -keypass $CERT_PASS -keystore $FILE_KEYSTORE_JKS -storetype JKS -storepass $KEYSTORE_JKS_PASS -dname "CN=integ2, OU=COM, O=Organisation, L=PARIS, ST=PARIS, C=FR, emailAddress=test@organisation.fr"
 }
 
 function importKeystoreJKSCertificates { 
@@ -174,7 +177,7 @@ function printKeystoreJKSCertificates {
 
 function createDHECertificate {
   cd  ssl
-  openssl dhparam -out $PUB_DIR/dhparam.pem 4096
+  openssl dhparam -out $PUB_DIR/dhparam.pem $NUMBITS
 }
 
 function setup {
@@ -210,11 +213,123 @@ function setup {
   createDHECertificate || exit 1
 }
 
-mkdir tls
-cd tls
+# Usage info
+usage() {
+    cat << EOF
+    Usage: ${0##*/} [-hv] [-d DOMAIN] [ACTION]...
+    Do stuff with FILE and write the result to standard output. With no FILE
+    or when FILE is -, read standard input.
+
+    OPTIONS
+       -h, --help                display this help and exit
+       -d, --domain DOMAIN       Domain for Certificate.
+       -b, --numbits SIZE        Number of bits for the certificate
+       --caPass PASSWORD         CA Password.
+       --serverPass PASSWORD     Server Certificate Password.
+       -v                        verbose mode. Can be used multiple times for increased
+                                 verbosity.
+
+    ACTION
+      setup
+      ca                Generate CA (Certificat Autority)
+      cert              Generate Server Certificat (for a specific domain)
+      sign              Sign Server Certificate
+      certSign
+      printCA
+      printCsr
+      printCrt
+      keystoreJKS
+      printJKS
+      dhparam           Generate DHECertificate
+
+EOF
+}
+
+
+i=$(($# + 1)) # index of the first non-existing argument
+declare -A longoptspec
+# Use associative array to declare how many arguments a long option
+# expects. In this case we declare that loglevel expects/has one
+# argument and range has two. Long options that aren't listed in this
+# way will have zero arguments by default.
+longoptspec=( [domain]=1 [numbits]=1 [caPass]=1 [serverPass]=1 [help]=0)
+optspec=":hd:b:-:"
+while getopts "$optspec" opt; do
+while true; do
+    case "${opt}" in
+        -) #OPTARG is name-of-long-option or name-of-long-option=value
+            if [[ ${OPTARG} =~ .*=.* ]] # with this --key=value format only one argument is possible
+            then
+                opt=${OPTARG/=*/}
+                ((${#opt} <= 1)) && {
+                    echo "Syntax error: Invalid long option '$opt'" >&2
+                    exit 2
+                }
+                if (($((longoptspec[$opt])) != 1))
+                then
+                    echo "Syntax error: Option '$opt' does not support this syntax." >&2
+                    exit 2
+                fi
+                OPTARG=${OPTARG#*=}
+            else #with this --key value1 value2 format multiple arguments are possible
+                opt="$OPTARG"
+                ((${#opt} <= 1)) && {
+                    echo "Syntax error: Invalid long option '$opt'" >&2
+                    exit 2
+                }
+                OPTARG=(${@:OPTIND:$((longoptspec[$opt]))})
+                ((OPTIND+=longoptspec[$opt]))
+                echo $OPTIND
+                ((OPTIND > i)) && {
+                    echo "Syntax error: Not all required arguments for option '$opt' are given." >&2
+                    exit 3
+                }
+            fi
+
+            continue #now that opt/OPTARG are set we can process them as
+            # if getopts would've given us long options
+            ;;
+        d|domain)
+            CERT_CN=$OPTARG
+            ;;
+        b|numbits)
+            NUMBITS=$OPTARG
+            ;;
+        caPass)
+            echo "CA PAss option '$OPTARG'" >&2
+            CA_PASS=$OPTARG
+            ;;
+        serverPass)
+            echo "CERT PAss option '$OPTARG'" >&2
+            CERT_PASS=$OPTARG
+            ;;
+        h|help)
+            usage
+            exit 0
+            ;;
+        ?)
+            echo "Syntax error: Unknown short option '$OPTARG'" >&2
+            exit 2
+            ;;
+        *)
+            echo "Syntax error: Unknown long option '$opt'" >&2
+            exit 2
+            ;;
+    esac
+break; done
+done
+
+echo "Domain=$CERT_CN"
+echo "CA password=$CA_PASS"
+echo "Server password=$CERT_PASS"
+echo "First non-option-argument (if exists): ${!OPTIND-}"
+
+mkdir -p $TARGET_DIR
+cd $TARGET_DIR
 createDestDir
 
-case "$1" in
+
+case "${!OPTIND-}" in
   setup)
     setup $2 || exit 1
     ;;
@@ -255,4 +370,4 @@ case "$1" in
     ;;
 esac
 exit 0
- 
+
