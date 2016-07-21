@@ -23,7 +23,7 @@ ENV NGINX_VERSION="1.11.2"  NPS_VERSION="1.11.33.2"
 # Expose
 # #######################
 EXPOSE 80 443
-VOLUME ["/data/wwww", "/var/log/nginx", "/var/lib/nginx", "/data/cert" ]
+VOLUME ["/data/html", "/var/log/nginx", "/var/lib/nginx", "/data/cert" ]
 
 
 # Install dependencies
@@ -65,9 +65,8 @@ RUN mkdir -p /data && \
 # http://www.cyberciti.biz/tips/linux-unix-bsd-nginx-webserver-security.html
 RUN sed -i'' 's/static char ngx_http_server_string\[\] = "Server: nginx" CRLF;/static char ngx_http_server_string\[\] = "Server: Microsoft-IIS\/7\.5" CRLF;/' /tmp/nginx-${NGINX_VERSION}/src/http/ngx_http_header_filter_module.c \
 &&  sed -i'' 's/static char ngx_http_server_full_string\[\] = "Server: " NGINX_VER CRLF;/static char ngx_http_server_full_string\[\] = "Server: Microsoft-IIS\/7\.5" CRLF;/' /tmp/nginx-${NGINX_VERSION}/src/http/ngx_http_header_filter_module.c \
-&&  grep 'static char ngx_http_server' /tmp/nginx-${NGINX_VERSION}/src/http/ngx_http_header_filter_module.c
-
-RUN  sed -i'' 's/\#define NGINX_VER          "nginx\/" NGINX_VERSION/#define NGINX_VER          "Microsoft-IIS\/7\.5"/' /tmp/nginx-${NGINX_VERSION}/src/core/nginx.h \
+&&  grep 'static char ngx_http_server' /tmp/nginx-${NGINX_VERSION}/src/http/ngx_http_header_filter_module.c \
+&&  sed -i'' 's/\#define NGINX_VER          "nginx\/" NGINX_VERSION/#define NGINX_VER          "Microsoft-IIS\/7\.5"/' /tmp/nginx-${NGINX_VERSION}/src/core/nginx.h \
 &&  grep 'NGINX_VER' /tmp/nginx-${NGINX_VERSION}/src/core/nginx.h
 
 # Compile Ngnix
@@ -110,7 +109,7 @@ RUN rm -Rf /tmp/nginx-${NGINX_VERSION} \
     apt-get autoremove \
     apt-get clean
 
-RUN  cp /usr/local/nginx/html/* /data/wwww/
+RUN  cp /usr/local/nginx/html/* /data/html/
 
 # TLS Certificat
 # #######################

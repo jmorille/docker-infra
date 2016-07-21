@@ -1,0 +1,13 @@
+cert:
+  image: jmmorille/cert
+
+web:
+  image: jmmorille/nginx
+  ports:
+   - "443:443"
+   - "80:80"
+  volumes_from:
+   - cert
+  volumes:
+   - ~/project/ttstore-admin/back2:/data/wwww
+   - /data/download/ttstore/ngnix/logs:/var/log/nginx
