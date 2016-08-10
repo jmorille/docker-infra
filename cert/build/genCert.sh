@@ -69,7 +69,7 @@ function printCA {
 
 function createAutoSignCertificateTls {
  # create Auto Sign certificat  SSL fot test  
-  openssl req -new -x509 -nodes -out  $PRIV_DIR/$CERT_FILENAME.crt -keyout  $PRIV_DIR/$CERT_FILENAME.key
+  openssl req -new -x509 -nodes -out  $PRIV_DIR/$CERT_FILENAME.crt -keyout  $PRIV_DIR/$CERT_FILENAME.key -subj $CERT_SUBJ
 }
 
 function createCertificateTls {
