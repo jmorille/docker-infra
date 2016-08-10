@@ -2,9 +2,25 @@ Docker Registry
 ===
 
 # Documentation
+
+## Docker registry
 https://docs.docker.com/registry/deploying/
 
-## Tls
+## Docker UI
+https://hub.docker.com/r/konradkleine/docker-registry-frontend/
+
+
+# Generate Configuration
+
+
+## Native auth
+```
+$ mkdir auth
+$ docker run --entrypoint htpasswd registry:2 -Bbn testuser testpassword > auth/htpasswd
+```
+
+
+## Tls 
 ```
 mkdir -p certs
 ```
@@ -17,9 +33,3 @@ You can do this using the cat command:
 cat domain.crt intermediate-certificates.pem > certs/domain.crt
 ```
 
-
-## Native auth
-```
-mkdir auth
-docker run --entrypoint htpasswd registry:2 -Bbn testuser testpassword > auth/htpasswd
-```
