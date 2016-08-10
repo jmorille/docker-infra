@@ -1,0 +1,20 @@
+es:
+  restart: always
+  image: elasticsearch:latest
+  ports:
+    - 9200:9200
+    - 9300:9300
+  expose:
+    - 9200
+    - 9300
+  volumes:
+    - ./config:/usr/share/elasticsearch/config:ro
+    - ./esdata:/usr/share/elasticsearch/data
+
+kibana:
+  restart: always
+  image: kibana:latest
+  ports:
+    - 5601:5601
+  links:
+   - es:es
