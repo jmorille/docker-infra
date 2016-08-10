@@ -20,6 +20,12 @@ cat domain.crt intermediate-certificates.pem > certs/domain.crt
 
 ## Native auth
 ```
-mkdir auth
-docker run --entrypoint htpasswd registry:2 -Bbn testuser testpassword > auth/htpasswd
+$ mkdir auth
+$docker run --entrypoint htpasswd registry:2 -Bbn testuser testpassword > auth/htpasswd
+```
+
+```
+$ mkdir certs
+$ ./genCert.sh autoSignCert -d THOR
+$ mv tls/priv/* certs/
 ```
