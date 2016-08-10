@@ -15,6 +15,6 @@ registry:
   volumes_from:
    - cert
   volumes:
-    - /path/data:/var/lib/registry
-    - /path/certs:/certs
-    - /path/auth:/auth
+    - /data/docker-registry/lib:/var/lib/registry
+    - /data/docker-registry/certs:/certs
+    - /data/docker-registry/auth:/auth
