@@ -6,7 +6,6 @@ elasticsearch:
     - 9300:9300
   expose:
     - 9200
-    - 9300
   volumes:
 #    - ./config:/usr/share/elasticsearch/config
     - ./esdata:/usr/share/elasticsearch/data
