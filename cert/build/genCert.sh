@@ -375,7 +375,7 @@ case "${!OPTIND-}" in
     createDHECertificate $2 || exit 1
     ;;
   *)
-    echo "Usage: $0 setup | ca | cert | sign | certSign | printCA | printCsr | printCrt | keystoreJKS | printJKS | dhparam" >&2
+    echo "Usage: $0 setup | autoSignCert | ca | cert | sign | certSign | printCA | printCsr | printCrt | keystoreJKS | printJKS | dhparam" >&2
     exit 1
     ;;
 esac
