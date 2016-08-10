@@ -29,3 +29,8 @@ $ mkdir certs
 $ ./genCert.sh autoSignCert -d THOR
 $ mv tls/priv/* certs/
 ```
+
+## 
+```
+$ docker-compose up
+```
