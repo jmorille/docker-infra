@@ -67,6 +67,11 @@ function printCA {
    openssl x509 -passin pass:$CA_PASS -noout -text -in $PUB_DIR/ca.crt
 }
 
+function createAutoSignCertificateTls {
+ # create Auto Sign certificat  SSL fot test  
+  openssl req -new -x509 -nodes -out  $PRIV_DIR/$CERT_FILENAME.crt -keyout  $PRIV_DIR/$CERT_FILENAME.key
+}
+
 function createCertificateTls {
  echo "### Generate Certificate for Domain $CERT_CN"
  # Créez une clé privée RSA pour votre serveur Apache (elle sera au format PEM et chiffrée en Triple-DES):
@@ -233,6 +238,7 @@ usage() {
     ACTION
       setup
       ca                Generate CA (Certificat Autority)
+      autoSignCert      Generate auto sign Certificat for Test
       cert              Generate Server Certificat (for a specific domain)
       sign              Sign Server Certificate
       certSign
@@ -339,6 +345,9 @@ case "${!OPTIND-}" in
     ;;
   printCA)
     printCA $2 || exit 1
+    ;;
+  autoSignCert)
+    createAutoSignCertificateTls || exit 1
     ;;
   cert)
     createCertificateTls $2 || exit 1
