@@ -2,24 +2,38 @@ Docker Registry
 ===
 
 # Documentation
+
+## Docker registry
 https://docs.docker.com/registry/deploying/
 
-## Tls
-```
-mkdir -p certs
-```
-Then move and/or rename your crt file to: certs/domain.crt, and your key file to: certs/domain.key.
+## Docker UI
+https://hub.docker.com/r/konradkleine/docker-registry-frontend/
 
-A certificate issuer may supply you with an intermediate certificate.
-In this case, you must combine your certificate with the intermediate’s to form a certificate bundle.
-You can do this using the cat command:
-```
-cat domain.crt intermediate-certificates.pem > certs/domain.crt
-```
+
+# Generate Configuration
 
 
 ## Native auth
 ```
-mkdir auth
-docker run --entrypoint htpasswd registry:2 -Bbn testuser testpassword > auth/htpasswd
+$ mkdir auth
+$ docker run --entrypoint htpasswd registry:2 -Bbn admin admin > auth/htpasswd
 ```
+
+
+## Tls 
+
+```
+$ mkdir certs
+$ ./genCert.sh autoSignCert -d THOR
+$ mv tls/priv/* certs/
+```
+  
+
+# Run Docker registry
+
+```
+$ docker-compose up
+```
+
+# Test API
+https://thor:5000/v2/
