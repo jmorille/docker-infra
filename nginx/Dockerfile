@@ -18,7 +18,7 @@ ENV HOME="/root" DEBIAN_FRONTEND="noninteractive"
 # #######################
 # Install  NGINX
 # #######################
-ENV NGINX_VERSION="1.11.2"  NPS_VERSION="1.11.33.2"
+ENV NGINX_VERSION="1.11.3"  NPS_VERSION="1.11.33.2"
 
 # Expose
 # #######################
@@ -110,7 +110,7 @@ RUN rm -Rf /tmp/nginx-${NGINX_VERSION} \
     apt-get clean
 
 RUN  cp /usr/local/nginx/html/* /data/html/
-
+RUN chown -R www-data:www-data /data/html
 # TLS Certificat
 # #######################
 # ADD build/ssl /data/cert

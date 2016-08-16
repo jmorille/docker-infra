@@ -24,6 +24,7 @@ server {
     listen 443 default_server ssl http2;
     # server_name .forgott.com;
 
+
     #ssl on;
     #ssl_certificate /data/cert/server.crt;
     #ssl_certificate_key /data/cert/server-nopasswd.key;
@@ -69,6 +70,8 @@ server {
        etag on;
        add_header Cache-Control "private";
    }
+
+   location ~ /\.  { access_log off; log_not_found off; deny all; }
 
    # pass the PHP scripts to FastCGI server listening on /var/run/php5-fpm.sock
    location ~ \.php$ {

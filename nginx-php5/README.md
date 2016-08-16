@@ -24,6 +24,7 @@ docker run -ti -p 80:80 -p 443:443 \
    jmorille/nginx-php5
 
 docker run -ti -p 80:80 -p 443:443 \
+   -v /home/deostem/project/docker-infra/nginx-php5/build/html:/data/html \
    jmorille/nginx-php5
 ```
 
