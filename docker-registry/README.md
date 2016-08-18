@@ -41,7 +41,9 @@ https://docs.docker.com/registry/spec/api/#/detail
 $ curl -k https://admin:admin@thor/v2/
 ```
 
-## 
+## Docker login
+The certificate validation should work if the CA certificate is loaded into /etc/docker/certs.d/<registry>
+https://github.com/docker/docker/issues/8849
 ```
 $ docker login https://thor
 ```

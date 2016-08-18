@@ -18,8 +18,8 @@ NUMBITS=4096
 
 # Gen Path
 export TARGET_DIR=certs
-#export PUB_DIR=pub
-#export PRIV_DIR=priv
+# export PUB_DIR=pub
+# export PRIV_DIR=priv
 export PUB_DIR=.
 export PRIV_DIR=.
 
@@ -349,7 +349,7 @@ echo "# ########################################## #"
 echo "# Domain=$CERT_CN"
 echo "# Certificat Subject=$CERT_SUBJ"
 echo "# CA password=$CA_PASS"
-echo "# Server password=$CERT_PASS"
+echo "# Certificat password=$CERT_PASS"
 echo "# ########################################## #"
 echo "# First non-option-argument (if exists): ${!OPTIND-}"
 echo "# ########################################## #"
