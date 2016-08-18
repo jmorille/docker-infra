@@ -229,6 +229,7 @@ usage() {
     OPTIONS
        -h, --help                display this help and exit
        -d, --domain DOMAIN       Domain for Certificate.
+       -f, --file FILENAME       File Name for Certificate.
        -b, --numbits SIZE        Number of bits for the certificate
        --caPass PASSWORD         CA Password.
        --serverPass PASSWORD     Server Certificate Password.
@@ -298,6 +299,9 @@ while true; do
             ;;
         d|domain)
             CERT_CN=$OPTARG
+            ;;
+        f|file)
+            CERT_FILENAME=$OPTARG
             ;;
         b|numbits)
             NUMBITS=$OPTARG
@@ -375,7 +379,8 @@ case "${!OPTIND-}" in
     createDHECertificate $2 || exit 1
     ;;
   *)
-    echo "Usage: $0 setup | autoSignCert | ca | cert | sign | certSign | printCA | printCsr | printCrt | keystoreJKS | printJKS | dhparam" >&2
+    usage
+    # echo "Usage: $0 setup | autoSignCert | ca | cert | sign | certSign | printCA | printCsr | printCrt | keystoreJKS | printJKS | dhparam" >&2
     exit 1
     ;;
 esac
