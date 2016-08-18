@@ -7,10 +7,11 @@
 CA_PASS="za@%-<e*SzTt<r:k3CKX"
 CERT_PASS="NPRn[X(9M(@82<>d7@*z"
 
-CA_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=DSI/CN=root"
 
 CERT_CN="localhost"
-CERT_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=IT/CN=$CERT_CN"
+
+
+
 
 CERT_FILENAME=domain
 NUMBITS=4096
@@ -301,7 +302,7 @@ while true; do
             # if getopts would've given us long options
             ;;
         d|domain)
-            CERT_CN=$OPTARG
+            export CERT_CN=$OPTARG
             ;;
         f|file)
             CERT_FILENAME=$OPTARG
@@ -333,11 +334,26 @@ while true; do
 break; done
 done
 
-echo "Domain=$CERT_CN"
-echo "CA password=$CA_PASS"
-echo "Server password=$CERT_PASS"
-echo "First non-option-argument (if exists): ${!OPTIND-}"
+# ################################### #
+# Certificat Subject                  #
+# ################################### #
+CA_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=DSI/CN=root"
+CERT_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=IT/CN=$CERT_CN"
 
+# ################################### #
+# Display configuration               #
+# ################################### #
+
+echo ""
+echo "# ########################################## #"
+echo "# Domain=$CERT_CN"
+echo "# Certificat Subject=$CERT_SUBJ"
+echo "# CA password=$CA_PASS"
+echo "# Server password=$CERT_PASS"
+echo "# ########################################## #"
+echo "# First non-option-argument (if exists): ${!OPTIND-}"
+echo "# ########################################## #"
+echo ""
 
 createDestDir
 cd $TARGET_DIR

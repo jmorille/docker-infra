@@ -1,5 +1,6 @@
 Docker Registry
-===
+===============
+
 
 # Documentation
 
@@ -29,5 +30,18 @@ $ ../cert/genCert.sh -d THOR autoSignCert
 $ docker-compose up
 ```
 
-# Test API
-https://thor:5000/v2/
+## Docker Registry HTTP API V2
+https://docs.docker.com/registry/spec/api/#/detail
+* https://thor:5000/v2/_catalog
+
+## Health Check
+* https://thor:5000/v2/
+
+```
+$ curl -k https://admin:admin@thor/v2/
+```
+
+## 
+```
+$ docker login https://thor
+```
