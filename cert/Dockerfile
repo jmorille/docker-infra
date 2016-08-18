@@ -3,10 +3,10 @@ FROM busybox
 
 # Expose
 # #######################
-VOLUME ["/data/cert"]
+VOLUME ["/data/certs"]
 CMD /bin/sh
 
 # Data
 # #######################
-COPY tls/pub /data/cert
+COPY certs /data/certs
 

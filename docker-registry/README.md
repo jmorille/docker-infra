@@ -20,7 +20,7 @@ $ docker run --entrypoint htpasswd registry:2 -Bbn admin admin > auth/htpasswd
 
 ## Tls 
 ``` 
-$ ../cert/genCert.sh -d THOR -f thor autoSignCert 
+$ ../cert/genCert.sh -d THOR autoSignCert 
 ```
   
 
