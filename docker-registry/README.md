@@ -12,24 +12,19 @@ https://hub.docker.com/r/konradkleine/docker-registry-frontend/
 
 # Generate Configuration
 
-
 ## Native auth
 ```
-$ mkdir auth
+$ mkdir -p auth
 $ docker run --entrypoint htpasswd registry:2 -Bbn admin admin > auth/htpasswd
 ```
 
-
 ## Tls 
-
-```
-$ mkdir certs
+``` 
 $ ../cert/genCert.sh -d THOR -f thor autoSignCert 
 ```
   
 
 # Run Docker registry
-
 ```
 $ docker-compose up
 ```
