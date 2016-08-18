@@ -16,7 +16,7 @@ CERT_FILENAME=domain
 NUMBITS=4096
 
 # Gen Path
-export TARGET_DIR=cert
+export TARGET_DIR=certs
 #export PUB_DIR=pub
 #export PRIV_DIR=priv
 export PUB_DIR=.
