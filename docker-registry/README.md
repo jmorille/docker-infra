@@ -24,8 +24,7 @@ $ docker run --entrypoint htpasswd registry:2 -Bbn admin admin > auth/htpasswd
 
 ```
 $ mkdir certs
-$ ./genCert.sh autoSignCert -d THOR
-$ mv tls/priv/* certs/
+$ ../cert/genCert.sh -d THOR -f thor autoSignCert 
 ```
   
 

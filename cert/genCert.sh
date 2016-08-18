@@ -16,9 +16,12 @@ CERT_FILENAME=domain
 NUMBITS=4096
 
 # Gen Path
-export TARGET_DIR=tls
-export PUB_DIR=pub
-export PRIV_DIR=priv 
+export TARGET_DIR=cert
+#export PUB_DIR=pub
+#export PRIV_DIR=priv
+export PUB_DIR=.
+export PRIV_DIR=.
+
 
 # KeyStore
 export FILE_KEYSTORE_JKS="keystore-server.jks"
@@ -42,8 +45,8 @@ function docCertificateSubject {
 }
 
 function createDestDir {
-    mkdir -p $PRIV_DIR
-    mkdir -p $PUB_DIR
+    mkdir -p $TARGET_DIR/$PRIV_DIR
+    mkdir -p $TARGET_DIR/$PUB_DIR
 }
   
 function createCA {
@@ -229,8 +232,8 @@ usage() {
     OPTIONS
        -h, --help                display this help and exit
        -d, --domain DOMAIN       Domain for Certificate.
-       -f, --file FILENAME       File Name for Certificate.
-       -b, --numbits SIZE        Number of bits for the certificate
+       -f, --file FILENAME       File Name for Certificate. (Default $CERT_FILENAME.(key|crt)
+       -b, --numbits SIZE        Number of bits for the certificate (Default $NUMBITS bits)
        --caPass PASSWORD         CA Password.
        --serverPass PASSWORD     Server Certificate Password.
        -v                        verbose mode. Can be used multiple times for increased
@@ -261,7 +264,7 @@ declare -A longoptspec
 # argument and range has two. Long options that aren't listed in this
 # way will have zero arguments by default.
 longoptspec=( [domain]=1 [numbits]=1 [caPass]=1 [serverPass]=1 [help]=0)
-optspec=":hd:b:-:"
+optspec=":hd:f:b:-:"
 while getopts "$optspec" opt; do
 while true; do
     case "${opt}" in
@@ -335,9 +338,9 @@ echo "CA password=$CA_PASS"
 echo "Server password=$CERT_PASS"
 echo "First non-option-argument (if exists): ${!OPTIND-}"
 
-mkdir -p $TARGET_DIR
-cd $TARGET_DIR
+
 createDestDir
+cd $TARGET_DIR
 
 
 case "${!OPTIND-}" in
@@ -379,8 +382,8 @@ case "${!OPTIND-}" in
     createDHECertificate $2 || exit 1
     ;;
   *)
+    #echo "Usage: $0 setup | autoSignCert | ca | cert | sign | certSign | printCA | printCsr | printCrt | keystoreJKS | printJKS | dhparam" >&2
     usage
-    # echo "Usage: $0 setup | autoSignCert | ca | cert | sign | certSign | printCA | printCsr | printCrt | keystoreJKS | printJKS | dhparam" >&2
     exit 1
     ;;
 esac
