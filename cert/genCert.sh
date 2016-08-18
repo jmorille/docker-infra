@@ -125,6 +125,9 @@ function mergeAllCertificats {
  # -->  $PUB_DIR/allcacerts.crt
  # combines the cacerts file from the openssl distribution $PUB_DIR/allcacerts.crt and the intermediate.crt file.
  cat $PUB_DIR/$CERT_FILENAME.crt $PUB_DIR/ca.crt > $PUB_DIR/allcacerts.crt
+ # Convert crt to pem
+ # openssl x509 -in allcacerts.crt -out allcacerts.pem -outform PEM
+ # openssl x509 -inform DER -in allcacerts.crt -out allcacerts.pem -text
 }
 
 
@@ -245,8 +248,8 @@ usage() {
       ca                Generate CA (Certificat Autority)
       autoSignCert      Generate auto sign Certificat for Test
       cert              Generate Server Certificat (for a specific domain)
-      sign              Sign Server Certificate
-      certSign
+      sign              Sign Server Certificate with CA
+      certSign          Generate Server Certificat Sign with existing CA
       printCA
       printCsr
       printCrt
