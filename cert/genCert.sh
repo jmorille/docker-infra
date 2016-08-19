@@ -8,10 +8,10 @@
 # #############
 export TARGET_DIR=certs
 export CA_DIR=$TARGET_DIR
-export PUB_DIR=pub
-export PRIV_DIR=priv
-#export PUB_DIR=.
-#export PRIV_DIR=.
+#export PUB_DIR=pub
+#export PRIV_DIR=priv
+export PUB_DIR=.
+export PRIV_DIR=.
 
 # File
 # #############
