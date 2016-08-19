@@ -42,10 +42,7 @@ $ curl -k https://admin:admin@thor/v2/
 ```
 
 ## Docker login
-The certificate validation should work if the CA certificate is loaded into /etc/docker/certs.d/<registry>
-https://github.com/docker/docker/issues/8849
-
-The docs fro setting up self-signed certs mention that you should add the cert to /etc/docker/certs.d/myregistrydomain.com:5000/ca.crt
+Copying the domain.crt file to /etc/docker/certs.d/myregistrydomain.com:5000/ca.crt ( https://docs.docker.com/registry/insecure/ )
 https://github.com/docker/machine/issues/1872
 ```
 $ docker login https://thor

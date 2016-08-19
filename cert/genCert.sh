@@ -17,9 +17,9 @@ NUMBITS=4096
 # Gen Path
 export TARGET_DIR=certs
 export CA_DIR=$TARGET_DIR
-#export PUB_DIR=pub
+export PUB_DIR=pub
 export PRIV_DIR=priv
-export PUB_DIR=.
+#export PUB_DIR=.
 #export PRIV_DIR=.
 
 
@@ -58,14 +58,11 @@ function createCA {
   #  Vous pouvez afficher les détails de cette clé privée RSA à l'aide de la commande :
   # openssl rsa -noout -text -in $CA_DIR/$PRIV_DIR/ca.key
 
-  # Si nécessaire, vous pouvez aussi créer une version PEM non chiffrée (non recommandé) de cette clé privée RSA	avec :
-  # openssl rsa  -passin pass:$CA_PASS -in $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PRIV_DIR/ca.key.unsecure
-
   # Créez un certificat auto-signé (structure X509) à l'aide de la clé RSA que vous venez de générer (la sortie sera au format PEM) :
   openssl req -passin pass:$CA_PASS -new -x509 -nodes -sha1 -days 365 -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -extensions usr_cert  -subj $CA_SUBJ
 
   # Record password
-  echo "$CA_PASS" > $CA_DIR/$PRIV_DIR/ca-password.txt
+  echo "$CA_PASS" > $CA_DIR/$PRIV_DIR/ca.key.password
 
   # Suppress password for CA Key
   unpassswdCAKey
@@ -74,8 +71,8 @@ function createCA {
 }
 
 function unpassswdCAKey {
- # Supprimer le chiffrement de la clé privée RSA (tout en conservant une copie de sauvegarde du fichier original) :
- openssl rsa  -passin pass:$CA_PASS  -in $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PRIV_DIR/ca-nopasswd.key
+  # Créer une version PEM non chiffrée (non recommandé) de cette clé privée RSA	avec :
+  openssl rsa  -passin pass:$CA_PASS -in $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PRIV_DIR/ca.key.unsecure
 }
 
 
@@ -95,7 +92,7 @@ function createCertificateTls {
  openssl genrsa -passout pass:$CERT_PASS -des3 -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key $NUMBITS
 
  # Enregistrez le fichier $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key et le mot de passe éventuellement défini en lieu sûr.
- # TODO
+ #  echo "$CERT_PASS" > $$TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key.password
 
  # Vous pouvez afficher les détails de cette clé privée RSA à l'aide de la commande :
  # openssl rsa -passin pass:$CERT_PASS -noout -text -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key
@@ -145,6 +142,10 @@ function mergeAllCertificats {
  # -->  $TARGET_DIR/$PUB_DIR/allcacerts.crt
  # combines the cacerts file from the openssl distribution $TARGET_DIR/$PUB_DIR/allcacerts.crt and the intermediate.crt file.
  cat $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt $CA_DIR/$PUB_DIR/ca.crt > $TARGET_DIR/$PUB_DIR/allcacerts.crt
+
+ # After combining the ASCII data into one file, verify validity of certificate chain for sslserver usage:
+ openssl verify -verbose -purpose sslserver -CAfile CAchain.pem allcacerts.crt
+
  # Convert crt to pem
  # openssl x509 -in allcacerts.crt -out allcacerts.pem -outform PEM
  # openssl x509 -inform DER -in allcacerts.crt -out allcacerts.pem -text
