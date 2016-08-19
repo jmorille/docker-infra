@@ -177,7 +177,7 @@ function mergeAllCertificats {
 
  # Combine the private key, certificate, and CA chain into a PFX:
  # http://esupport.trendmicro.com/solution/en-US/1106466.aspx
- openssl pkcs12 -export -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.pfx -inkey $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key $CA_DIR/$PRIV_DIR/ca.key -in $CERT_FILENAME-chains.crt -certfile $CA_DIR/$PUB_DIR/ca.crt
+ openssl pkcs12 -export -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.pfx -inkey $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -inkey $CA_DIR/$PRIV_DIR/ca.key -in $CERT_FILENAME-chains.crt -certfile $CA_DIR/$PUB_DIR/ca.crt
 
  # Convert crt to pem
  # openssl x509 -in allcacerts.crt -out allcacerts.pem -outform PEM
