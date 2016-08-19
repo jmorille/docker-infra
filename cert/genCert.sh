@@ -93,13 +93,21 @@ function unpassswdCAKey {
 
 
 function printCA {
-   # Vous pouvez afficher les détails de ce certificat avec :
+   echo ""
    echo "# ### ############################################### ### #"
    echo "# ### CA Root Certificate                             ### #"
    echo "# ### ############################################### ### #"
+   # Vous pouvez afficher les détails de ce certificat avec :
    openssl x509 -noout -text -passin pass:$CA_PASS  -in $CA_DIR/$PUB_DIR/ca.crt
    echo "# ### ############################################### ### #"
+   echo ""
 }
+
+
+# ################################## ### #
+# ### Intermediate Certificat        ### #
+# ################################## ### #
+
 
 # ################################## ### #
 # ### AutoSign Certificate Domain    ### #
@@ -147,8 +155,14 @@ function createCertificateTls {
 }
 
 function printCsr {
- # Vous pouvez afficher les détails de ce CSR avec :
- openssl req -passin pass:$CERT_PASS -noout -text -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr
+   echo ""
+   echo "# ### ############################################### ### #"
+   echo "# ### Server Certificate                              ### #"
+   echo "# ### ############################################### ### #"
+   # Vous pouvez afficher les détails de ce CSR avec :
+   openssl req -passin pass:$CERT_PASS -noout -text -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr
+   echo "# ### ############################################### ### #"
+   echo ""
 }
 
 
@@ -447,8 +461,9 @@ done
 # ################################## ### #
 # ### Certificate Subject            ### #
 # ################################## ### #
-CA_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=DSI/CN=RootCA"
-CERT_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=IT/CN=$CERT_CN"
+COMMON_SUBJ="/C=FR/ST=France/O=Organisation"
+CA_SUBJ="$COMMON_SUBJ/L=Paris/OU=DSI/CN=RootCA"
+CERT_SUBJ="$COMMON_SUBJ/L=Paris/OU=IT/CN=$CERT_CN"
 
 
 # ################################## ### #
