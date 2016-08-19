@@ -155,7 +155,7 @@ function verifyCertificateTlsForCA {
    openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
 }
 
-}
+
 function createNewKeystorePKCS12 {
  # -->  server.p12
    if [ -f "$FILE_KEYSTORE_PKCS12" ]
