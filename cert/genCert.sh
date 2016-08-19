@@ -66,23 +66,24 @@ function docCertificateSubject {
 
 function createCA {
   # Créez une clé privée RSA pour votre serveur (elle sera au format PEM et chiffrée en Triple-DES) :
-  openssl genrsa -des3 -passout pass:$CA_PASS -out $CA_DIR/$PRIV_DIR/ca.key $NUMBITS
+  openssl genrsa -aes256 -passout pass:$CA_PASS -out $CA_DIR/$PRIV_DIR/ca.key $NUMBITS
 
   #  Vous pouvez afficher les détails de cette clé privée RSA à l'aide de la commande :
   # openssl rsa -noout -text -in $CA_DIR/$PRIV_DIR/ca.key
 
   # Créez un certificat auto-signé (structure X509) à l'aide de la clé RSA que vous venez de générer (la sortie sera au format PEM) :
-  # openssl req -x509 -new -nodes -extensions usr_cert  -sha1   -days 365 -passin pass:$CA_PASS  -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -subj $CA_SUBJ
-    openssl req -x509 -new -nodes -extensions v3_ca     -sha512 -days 365 -passin pass:$CA_PASS  -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -subj $CA_SUBJ
+  # openssl req -x509 -new -nodes -extensions usr_cert  -sha1   -days 7300 -passin pass:$CA_PASS  -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -subj $CA_SUBJ
+  # openssl req -x509 -new -nodes -extensions v3_ca     -sha512 -days 7300 -passin pass:$CA_PASS  -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -subj $CA_SUBJ
+    openssl req -x509 -new         -extensions v3_ca    -sha256 -days 7300 -passin pass:$CA_PASS  -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -subj $CA_SUBJ
 
 
   # Record password
   echo "$CA_PASS" > $CA_DIR/$PRIV_DIR/ca.key.password
 
   # Suppress password for CA Key
-  unpassswdCAKey
+  # unpassswdCAKey
 
-  # printCA
+  printCA
 }
 
 function unpassswdCAKey {
@@ -93,7 +94,11 @@ function unpassswdCAKey {
 
 function printCA {
    # Vous pouvez afficher les détails de ce certificat avec :
-   openssl x509 -passin pass:$CA_PASS -noout -text -in $CA_DIR/$PUB_DIR/ca.crt
+   echo "# ### ############################################### ### #"
+   echo "# ### CA Root Certificate                             ### #"
+   echo "# ### ############################################### ### #"
+   openssl x509 -noout -text -passin pass:$CA_PASS  -in $CA_DIR/$PUB_DIR/ca.crt
+   echo "# ### ############################################### ### #"
 }
 
 # ################################## ### #
@@ -442,7 +447,7 @@ done
 # ################################## ### #
 # ### Certificate Subject            ### #
 # ################################## ### #
-CA_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=DSI/CN=root"
+CA_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=DSI/CN=RootCA"
 CERT_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=IT/CN=$CERT_CN"
 
 
