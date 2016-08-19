@@ -15,4 +15,19 @@ docker run -ti jmorille/cert ls /data/cert
 ==> TODO follow  : https://weakdh.org/sysadmin.html
 
  
- 
+##  Concaténer les fichiers de certificat
+Respecter l'ordre suivant
+```
+-----BEGIN RSA PRIVATE KEY----- 
+(Your Private Key: server.key) 
+-----END RSA PRIVATE KEY----- 
+-----BEGIN CERTIFICATE----- 
+(Your Primary SSL certificate: server.crt) 
+-----END CERTIFICATE----- 
+-----BEGIN CERTIFICATE----- 
+(Your Intermediate certificate: DigiCertCA.crt) 
+-----END CERTIFICATE----- 
+-----BEGIN CERTIFICATE----- 
+(Your Root certificate: TrustedRoot.crt) 
+-----END CERTIFICATE-----
+```

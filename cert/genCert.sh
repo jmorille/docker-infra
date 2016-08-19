@@ -168,16 +168,16 @@ function unpassswdCertificateTlsKey {
 
 
 function mergeAllCertificats {
- # -->  $TARGET_DIR/$PUB_DIR/allcacerts.crt
- # combines the cacerts file from the openssl distribution $TARGET_DIR/$PUB_DIR/allcacerts.crt and the intermediate.crt file.
- cat $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt $CA_DIR/$PUB_DIR/ca.crt > $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.crt
+ # -->   $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
+ # combines the cacerts file from the openssl distribution  $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem and the intermediate.crt file.
+ cat $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.key $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt $CA_DIR/$PUB_DIR/ca.crt > $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
 
  # After combining the ASCII data into one file, verify validity of certificate chain for sslserver usage:
- openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.crt
+ openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
 
  # Combine the private key, certificate, and CA chain into a PFX:
  # http://esupport.trendmicro.com/solution/en-US/1106466.aspx
- openssl pkcs12 -export -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.pfx -inkey $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -inkey $CA_DIR/$PRIV_DIR/ca.key -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.crt -certfile $CA_DIR/$PUB_DIR/ca.crt
+ # openssl pkcs12 -export -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.pfx -inkey $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -inkey $CA_DIR/$PRIV_DIR/ca.key -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.crt -certfile $CA_DIR/$PUB_DIR/ca.crt
 
  # Convert crt to pem
  # openssl x509 -in allcacerts.crt -out allcacerts.pem -outform PEM
@@ -204,7 +204,7 @@ function createNewKeystorePKCS12 {
    fi
 
    # Test for all Certificate File
-   FILE_ALL_CERT=$TARGET_DIR/$PUB_DIR/allcacerts.crt
+   FILE_ALL_CERT= $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
    if [ -f "$FILE_ALL_CERT" ]
    then
 	echo "$FILE_ALL_CERT found." 
@@ -214,7 +214,7 @@ function createNewKeystorePKCS12 {
    fi
 
    # create PKCS12 format keystores.
-   openssl pkcs12 -passin pass:$CERT_PASS -passout pass:$KEYSTORE_PK12_PASS  -export -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -inkey $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -out $FILE_KEYSTORE_PKCS12 -name tomcat -CAfile $TARGET_DIR/$PUB_DIR/allcacerts.crt -caname root -chain
+   openssl pkcs12 -passin pass:$CERT_PASS -passout pass:$KEYSTORE_PK12_PASS  -export -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -inkey $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -out $FILE_KEYSTORE_PKCS12 -name tomcat -CAfile  $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem -caname root -chain
  }
 
 function createNewKeystoreJKS {
@@ -235,7 +235,7 @@ function createNewKeystoreJKS {
 
 function importKeystoreJKSCertificates { 
  # Import the Chain Certificate into your keystore   
- # keytool -import -alias root -keystore $FILE_KEYSTORE_JKS -storepass $KEYSTORE_JKS_PASS -trustcacerts -noprompt -file  $TARGET_DIR/$PUB_DIR/allcacerts.crt
+ # keytool -import -alias root -keystore $FILE_KEYSTORE_JKS -storepass $KEYSTORE_JKS_PASS -trustcacerts -noprompt -file   $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
 
  # keytool -import -alias root -keystore $FILE_KEYSTORE_JKS -storepass $KEYSTORE_JKS_PASS -trustcacerts -noprompt -file  $CA_DIR/$PUB_DIR/ca.crt
  # keytool -import -alias tomcat -keystore $FILE_KEYSTORE_JKS -storepass $KEYSTORE_JKS_PASS -trustcacerts -noprompt -file  $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
@@ -283,7 +283,7 @@ function setup {
   # Supprimer le chiffrement de la clé privée RSA  : ==> server-nopasswd.key
   unpassswdCertificateTlsKey || exit 1
   
-  # Merge All Certificats ==> $TARGET_DIR/$PUB_DIR/allcacerts.crt
+  # Merge All Certificats ==>  $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
   mergeAllCertificats || exit 1
   
   # KeyStore PKCS12 ==> $CERT_FILENAME.p12
