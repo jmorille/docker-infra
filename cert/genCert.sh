@@ -3,18 +3,9 @@
 # Doc : http://www.linux-france.org/prj/edu/archinet/systeme/ch24s03.html
 # Apache https://httpd.apache.org/docs/2.4/fr/ssl/ssl_faq.html
 
-# Certificate
-CA_PASS="za@%-<e*SzTt<r:k3CKX"
-CERT_PASS="NPRn[X(9M(@82<>d7@*z"
-
-
-CERT_CN="localhost"
-
-
-CERT_FILENAME=domain
-NUMBITS=4096
 
 # Gen Path
+# #############
 export TARGET_DIR=certs
 export CA_DIR=$TARGET_DIR
 export PUB_DIR=pub
@@ -22,8 +13,21 @@ export PRIV_DIR=priv
 #export PUB_DIR=.
 #export PRIV_DIR=.
 
+# File
+# #############
+# ca.crt =  CAchain.pem
+CERT_FILENAME=domain
+
+# Certificate
+# #############
+NUMBITS=4096
+CERT_CN="localhost"
+CA_PASS="za@%-<e*SzTt<r:k3CKX"
+CERT_PASS="NPRn[X(9M(@82<>d7@*z"
+
 
 # KeyStore
+# #############
 export FILE_KEYSTORE_JKS="keystore-server.jks"
 export FILE_KEYSTORE_PKCS12="server.p12"
 
@@ -31,8 +35,19 @@ export KEYSTORE_PK12_PASS=keystorePKCS12pass
 export KEYSTORE_JKS_PASS=keystoreJKSPass
 
 
-function docCertificateSubject {
 
+# Functions
+# #############
+
+function createDestDir {
+    mkdir -p $TARGET_DIR/$PRIV_DIR
+    mkdir -p $TARGET_DIR/$PUB_DIR
+    mkdir -p $CA_DIR/$PRIV_DIR
+    mkdir -p $CA_DIR/$PUB_DIR
+}
+
+
+function docCertificateSubject {
   echo "###  Create the Server Key and Certificate Signing Request"
   echo "### ########################################################"
   echo "### First parameter :  $CERT_PASS"
@@ -44,13 +59,11 @@ function docCertificateSubject {
   echo "/CN =  Common Name	             example.com"
 }
 
-function createDestDir {
-    mkdir -p $TARGET_DIR/$PRIV_DIR
-    mkdir -p $TARGET_DIR/$PUB_DIR
-    mkdir -p $CA_DIR/$PRIV_DIR
-    mkdir -p $CA_DIR/$PUB_DIR
-}
-  
+
+# ################################## ### #
+# ### Certificate Authority          ### #
+# ################################## ### #
+
 function createCA {
   # Créez une clé privée RSA pour votre serveur (elle sera au format PEM et chiffrée en Triple-DES) :
   openssl  genrsa  -passout pass:$CA_PASS -des3 -out $CA_DIR/$PRIV_DIR/ca.key $NUMBITS
@@ -81,10 +94,20 @@ function printCA {
    openssl x509 -passin pass:$CA_PASS -noout -text -in $CA_DIR/$PUB_DIR/ca.crt
 }
 
+# ################################## ### #
+# ### AutoSign Certificate Domain    ### #
+# ################################## ### #
+
+
 function createAutoSignCertificateTls {
  # create Auto Sign certificat  SSL fot test  
   openssl req -new -x509 -nodes -out  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.crt -keyout  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -subj $CERT_SUBJ
 }
+
+
+# ############################# #
+# ### Certificate Domain    ### #
+# ############################# #
 
 function createCertificateTls {
  echo "### Generate Certificate for Domain $CERT_CN"
@@ -138,13 +161,23 @@ function unpassswdCertificateTlsKey {
  openssl rsa  -passin pass:$CERT_PASS  -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-nopasswd.key
 }
 
+
+# ################################## ### #
+# ### Merge Certificates             ### #
+# ################################## ### #
+
+
 function mergeAllCertificats {
  # -->  $TARGET_DIR/$PUB_DIR/allcacerts.crt
  # combines the cacerts file from the openssl distribution $TARGET_DIR/$PUB_DIR/allcacerts.crt and the intermediate.crt file.
- cat $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt $CA_DIR/$PUB_DIR/ca.crt > $TARGET_DIR/$PUB_DIR/allcacerts.crt
+ cat $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt $CA_DIR/$PUB_DIR/ca.crt > $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.crt
 
  # After combining the ASCII data into one file, verify validity of certificate chain for sslserver usage:
- openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/allcacerts.crt
+ openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.crt
+
+ # Combine the private key, certificate, and CA chain into a PFX:
+ # http://esupport.trendmicro.com/solution/en-US/1106466.aspx
+ # openssl pkcs12 -export -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.pfx -inkey $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key $CA_DIR/$PRIV_DIR/ca.key -in $CERT_FILENAME-chains.crt -certfile $CA_DIR/$PUB_DIR/ca.crt
 
  # Convert crt to pem
  # openssl x509 -in allcacerts.crt -out allcacerts.pem -outform PEM
@@ -155,6 +188,10 @@ function verifyCertificateTlsForCA {
    openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
 }
 
+
+# ################################## ### #
+# ### Keystore                       ### #
+# ################################## ### #
 
 function createNewKeystorePKCS12 {
  # -->  server.p12
@@ -213,10 +250,20 @@ function printKeystoreJKSCertificates {
  keytool -list -v -keystore $FILE_KEYSTORE_JKS -storepass $KEYSTORE_JKS_PASS
 }
 
+
+# ################################## ### #
+# ### DHE Certificate                ### #
+# ################################## ### #
+
+
 function createDHECertificate {
   cd  ssl
   openssl dhparam -out $TARGET_DIR/$PUB_DIR/dhparam.pem $NUMBITS
 }
+
+# ################################## ### #
+# ### Scheduler                      ### #
+# ################################## ### #
 
 function setup {
 
@@ -250,6 +297,11 @@ function setup {
   # Security tools
   #createDHECertificate || exit 1
 }
+
+
+# ################################## ### #
+# ### Usage info                      ### #
+# ################################## ### #
 
 # Usage info
 usage() {
@@ -289,6 +341,10 @@ EOF
 }
 
 
+
+# ################################## ### #
+# ### Command  Line Options Parser   ### #
+# ################################## ### #
 
 i=$(($# + 1)) # index of the first non-existing argument
 declare -A longoptspec
@@ -372,16 +428,17 @@ while true; do
 break; done
 done
 
-# ################################### #
-# Certificat Subject                  #
-# ################################### #
+
+# ################################## ### #
+# ### Certificate Subject            ### #
+# ################################## ### #
 CA_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=DSI/CN=root"
 CERT_SUBJ="/C=FR/ST=France/L=Paris/O=Organisation/OU=IT/CN=$CERT_CN"
 
-# ################################### #
-# Display configuration               #
-# ################################### #
 
+# ################################## ### #
+# ### Display configuration          ### #
+# ################################## ### #
 echo ""
 echo "# ########################################## #"
 echo "# Domain=$CERT_CN"
@@ -393,10 +450,16 @@ echo "# First non-option-argument (if exists): ${!OPTIND-}"
 echo "# ########################################## #"
 echo ""
 
+
+
+# ################################## ### #
+# ### Executors                      ### #
+# ################################## ### #
+
+# Create destination Folder
 createDestDir
-#cd $TARGET_DIR
 
-
+# Select Executor
 case "${!OPTIND-}" in
   setup)
     setup $2 || exit 1
