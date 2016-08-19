@@ -33,3 +33,10 @@ Respecter l'ordre suivant
 (Your Root certificate: TrustedRoot.crt) 
 -----END CERTIFICATE-----
 ```
+
+
+# Install the CA on the client
+```
+cp certs/ca.crt /usr/local/share/ca-certificates/thor.crt
+update-ca-certificates
+```

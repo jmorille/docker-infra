@@ -8,6 +8,8 @@
 # #############
 export TARGET_DIR=certs
 export CA_DIR=$TARGET_DIR
+export INTER_DIR=$TARGET_DIR
+
 #export PUB_DIR=pub
 #export PRIV_DIR=priv
 export PUB_DIR=.
@@ -23,6 +25,7 @@ CERT_FILENAME=domain
 NUMBITS=4096
 CERT_CN="localhost"
 CA_PASS="za@%-<e*SzTt<r:k3CKX"
+INTER_PASS="(GQst?E<[649Tk<w"
 CERT_PASS="NPRn[X(9M(@82<>d7@*z"
 
 
@@ -65,39 +68,40 @@ function docCertificateSubject {
 # ################################## ### #
 
 function createCA {
-  # Créez une clé privée RSA pour votre serveur (elle sera au format PEM et chiffrée en Triple-DES) :
+  # Créez une clé privée RSA pour votre serveur (elle sera au format PEM) :
   openssl genrsa -aes256 -passout pass:$CA_PASS -out $CA_DIR/$PRIV_DIR/ca.key $NUMBITS
-
-  #  Vous pouvez afficher les détails de cette clé privée RSA à l'aide de la commande :
-  # openssl rsa -noout -text -in $CA_DIR/$PRIV_DIR/ca.key
+  chmod 400 $CA_DIR/$PRIV_DIR/ca.key
 
   # Créez un certificat auto-signé (structure X509) à l'aide de la clé RSA que vous venez de générer (la sortie sera au format PEM) :
-  # openssl req -x509 -new -nodes -extensions usr_cert  -sha1   -days 7300 -passin pass:$CA_PASS  -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -subj $CA_SUBJ
-  # openssl req -x509 -new -nodes -extensions v3_ca     -sha512 -days 7300 -passin pass:$CA_PASS  -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -subj $CA_SUBJ
-    openssl req -x509 -new         -extensions v3_ca    -sha256 -days 7300 -passin pass:$CA_PASS  -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -subj $CA_SUBJ
-
-
-  # Record password
-  echo "$CA_PASS" > $CA_DIR/$PRIV_DIR/ca.key.password
-
-  # Suppress password for CA Key
-  # unpassswdCAKey
+  openssl req -x509 -new         -extensions v3_ca    -sha256 -days 7300 -passin pass:$CA_PASS  -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -subj $CA_SUBJ
+  chmod 444 $CA_DIR/$PUB_DIR/ca.crt
 
   printCA
 }
 
-function unpassswdCAKey {
+function saveCApasswd {
+  # Record password
+  echo "$CA_PASS" > $CA_DIR/$PRIV_DIR/ca.key.password
+}
+
+function unsecureCAKey {
   # Créer une version PEM non chiffrée (non recommandé) de cette clé privée RSA	avec :
   openssl rsa  -passin pass:$CA_PASS -in $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PRIV_DIR/ca.key.unsecure
 }
 
+function printCAKey {
+   echo ""
+   echo "# ### ############################################### ### #"
+   echo "# ### CA Root Key                                     ### #"
+   openssl rsa -noout -text -in $CA_DIR/$PRIV_DIR/ca.key
+   echo "# ### ############################################### ### #"
+   echo ""
+}
 
 function printCA {
    echo ""
    echo "# ### ############################################### ### #"
    echo "# ### CA Root Certificate                             ### #"
-   echo "# ### ############################################### ### #"
-   # Vous pouvez afficher les détails de ce certificat avec :
    openssl x509 -noout -text -passin pass:$CA_PASS  -in $CA_DIR/$PUB_DIR/ca.crt
    echo "# ### ############################################### ### #"
    echo ""
@@ -105,8 +109,52 @@ function printCA {
 
 
 # ################################## ### #
-# ### Intermediate Certificat        ### #
+# ### Intermediate Certificate       ### #
 # ################################## ### #
+
+
+function createIntermediate {
+  # Create the intermediate key
+  openssl genrsa -aes256 -passout pass:$INTER_PASS -out $INTER_DIR/$PRIV_DIR/intermediate.key.pem $NUMBITS
+  chmod 400 $INTER_DIR/$PRIV_DIR/intermediate.key.pem
+
+  # Create the intermediate certificate
+  openssl req -new -sha256 -passin pass:$INTER_PASS \
+      -key $INTER_DIR/$PRIV_DIR/intermediate.key.pem \
+      -out $INTER_DIR/$PRIV_DIR/intermediate.csr.pem \
+      -subj $INTER_SUBJ
+
+  openssl ca -extensions v3_intermediate_ca -days 3650 -notext -md sha256 \
+      -passin pass:$INTER_PASS \
+      -cert $CA_DIR/$PUB_DIR/ca.crt  \
+      -in $INTER_DIR/$PRIV_DIR/intermediate.csr.pem \
+      -out $INTER_DIR/$PUB_DIR/intermediate.cert.pem
+
+  chmod 444 $INTER_DIR/$PUB_DIR/intermediate.cert.pem
+
+  #printIntermediate
+}
+
+function createIntermediateChain {
+   cat $INTER_DIR/$PUB_DIR/intermediate.cert.pem \
+      $CA_DIR/$PUB_DIR/ca.crt > $INTER_DIR/$PUB_DIR/ca-chain.cert.pem
+   chmod 444 $INTER_DIR/$PUB_DIR/ca-chain.cert.pem
+}
+
+function printIntermediate {
+   echo ""
+   echo "# ### ############################################### ### #"
+   echo "# ### Intermediate Certificate                        ### #"
+   openssl x509 -noout -text -passin pass:$INTER_PASS  -in $INTER_DIR/$PUB_DIR/intermediate.cert.pem
+   echo "# ### ############################################### ### #"
+   verifyIntermediate
+   echo "# ### ############################################### ### #"
+   echo ""
+}
+
+function verifyIntermediate {
+   openssl verify -CAfile $CA_DIR/$PUB_DIR/ca.crt $INTER_DIR/$PUB_DIR/intermediate.cert.pem
+}
 
 
 # ################################## ### #
@@ -128,13 +176,13 @@ function unpassswdCertificateTlsKey {
 
 
 # ############################# #
-# ### Certificate Domain    ### #
+# ### Server Certificate    ### #
 # ############################# #
 
 function createCertificateTls {
  echo "### Generate Certificate for Domain $CERT_CN"
  # Créez une clé privée RSA pour votre serveur Apache (elle sera au format PEM et chiffrée en Triple-DES):
- openssl genrsa -des3  -passout pass:$CERT_PASS -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key $NUMBITS
+ openssl genrsa -aes256  -passout pass:$CERT_PASS -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key $NUMBITS
 
  # Enregistrez le fichier $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key et le mot de passe éventuellement défini en lieu sûr.
  #  echo "$CERT_PASS" > $$TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key.password
@@ -144,7 +192,8 @@ function createCertificateTls {
  
  # Créez une Demande de signature de Certificat (CSR) à l'aide de la clé privée précédemment générée (la sortie sera au format PEM):
  # openssl req -new -passin pass:$CERT_PASS -key $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -subj $CERT_SUBJ
- openssl req -new -sha512 -passin pass:$CERT_PASS -key $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -subj $CERT_SUBJ
+ #  -extensions server_cert
+ openssl req -new -sha256 -passin pass:$CERT_PASS -key $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -subj $CERT_SUBJ
 
  # Vous devez entrer le Nom de Domaine Pleinement Qualifié ("Fully Qualified Domain Name" ou FQDN) 
  # de votre serveur lorsqu'OpenSSL vous demande le "CommonName", 
@@ -157,7 +206,7 @@ function createCertificateTls {
 function printCsr {
    echo ""
    echo "# ### ############################################### ### #"
-   echo "# ### Server Certificate                              ### #"
+   echo "# ### Server Certificate Unsigned                     ### #"
    echo "# ### ############################################### ### #"
    # Vous pouvez afficher les détails de ce CSR avec :
    openssl req -passin pass:$CERT_PASS -noout -text -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr
@@ -169,9 +218,9 @@ function printCsr {
 function signCertificateTlsWithCa {
   # La commande qui signe la demande de certificat est la suivante : ==>  CRT = CSR + CA sign
   # openssl x509 -req -passin pass:$CA_PASS  -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -CA $CA_DIR/$PUB_DIR/ca.crt -CAkey $CA_DIR/$PRIV_DIR/ca.key -CAcreateserial -CAserial $CA_DIR/$PRIV_DIR/ca.srl
-  openssl x509 -req -days 365 -sha512 -passin pass:$CA_PASS  -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -CA $CA_DIR/$PUB_DIR/ca.crt -CAkey $CA_DIR/$PRIV_DIR/ca.key -CAcreateserial
+  openssl x509 -req -days 365 -sha512 -passin pass:$CA_PASS  -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -CA $CA_DIR/$PUB_DIR/ca.crt -CAkey $CA_DIR/$PRIV_DIR/ca.key -CAcreateserial -CAserial $CA_DIR/$PRIV_DIR/ca.srl
 
-  # printCrt
+  printCrt
 }
 
 function copyCA2CertificateTls {
@@ -182,8 +231,19 @@ function copyCA2CertificateTls {
 
 
 function printCrt {
+   echo ""
+   echo "# ### ############################################### ### #"
+   echo "# ### Server Certificate Unsigned                     ### #"
+   echo "# ### ############################################### ### #"
   # Une fois la CSR signée, vous pouvez afficher les détails du certificat comme suit :
   openssl x509 -noout -text -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
+   echo "# ### ############################################### ### #"
+   verifyServer
+   echo "# ### ############################################### ### #"
+}
+
+function verifyServer {
+  openssl verify -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
 }
 
 
@@ -354,6 +414,7 @@ usage() {
     ACTION
       setup
       ca                Generate CA (Certificate Authority)
+      intermediateCa    Generate Intermediate CA
       autoSignCert      Generate auto sign Certificate for Test
       cert              Generate Server Certificate (for a specific domain)
       sign              Sign Server Certificate with CA
@@ -463,6 +524,7 @@ done
 # ################################## ### #
 COMMON_SUBJ="/C=FR/ST=France/O=Organisation"
 CA_SUBJ="$COMMON_SUBJ/L=Paris/OU=DSI/CN=RootCA"
+INTER_SUBJ="$COMMON_SUBJ/L=Paris/OU=DSI/CN=IntermediateCA"
 CERT_SUBJ="$COMMON_SUBJ/L=Paris/OU=IT/CN=$CERT_CN"
 
 
@@ -496,6 +558,9 @@ case "${!OPTIND-}" in
     ;;
   ca)
     createCA $2 || exit 1
+    ;;
+  intermediateCa)
+    createIntermediate $2 || exit 1
     ;;
   printCA)
     printCA $2 || exit 1
