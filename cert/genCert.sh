@@ -144,7 +144,7 @@ function mergeAllCertificats {
  cat $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt $CA_DIR/$PUB_DIR/ca.crt > $TARGET_DIR/$PUB_DIR/allcacerts.crt
 
  # After combining the ASCII data into one file, verify validity of certificate chain for sslserver usage:
- openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt allcacerts.crt
+ openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
 
  # Convert crt to pem
  # openssl x509 -in allcacerts.crt -out allcacerts.pem -outform PEM
