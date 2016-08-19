@@ -1,6 +1,8 @@
 Auto Generate Certificate
 ===
 
+https://jamielinux.com/docs/openssl-certificate-authority/
+
 ## Generate Self Signed Certificate
 ./build/genCert.sh setup
 

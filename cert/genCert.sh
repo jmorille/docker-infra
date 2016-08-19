@@ -66,13 +66,15 @@ function docCertificateSubject {
 
 function createCA {
   # Créez une clé privée RSA pour votre serveur (elle sera au format PEM et chiffrée en Triple-DES) :
-  openssl  genrsa  -passout pass:$CA_PASS -des3 -out $CA_DIR/$PRIV_DIR/ca.key $NUMBITS
+  openssl genrsa -des3 -passout pass:$CA_PASS -out $CA_DIR/$PRIV_DIR/ca.key $NUMBITS
 
   #  Vous pouvez afficher les détails de cette clé privée RSA à l'aide de la commande :
   # openssl rsa -noout -text -in $CA_DIR/$PRIV_DIR/ca.key
 
   # Créez un certificat auto-signé (structure X509) à l'aide de la clé RSA que vous venez de générer (la sortie sera au format PEM) :
-  openssl req -passin pass:$CA_PASS -new -x509 -nodes -sha1 -days 365 -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -extensions usr_cert  -subj $CA_SUBJ
+  # openssl req -x509 -new -nodes -extensions usr_cert  -sha1   -days 365 -passin pass:$CA_PASS  -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -subj $CA_SUBJ
+    openssl req -x509 -new -nodes -extensions v3_ca     -sha512 -days 365 -passin pass:$CA_PASS  -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -subj $CA_SUBJ
+
 
   # Record password
   echo "$CA_PASS" > $CA_DIR/$PRIV_DIR/ca.key.password
@@ -101,8 +103,10 @@ function printCA {
 
 function createAutoSignCertificateTls {
  # create Auto Sign certificat  SSL fot test  
-  openssl req -new -x509 -nodes -out  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.crt -keyout  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -subj $CERT_SUBJ
+ # openssl req -new -x509 -nodes -out  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.crt -keyout  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -subj $CERT_SUBJ
+ openssl req -newkey rsa:$NUMBITS -nodes -sha256 -days 365 -x509 -keyout $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.crt -subj $CERT_SUBJ
 }
+
 
 function unpassswdCertificateTlsKey {
  # Supprimer le chiffrement de la clé privée RSA (tout en conservant une copie de sauvegarde du fichier original) :
@@ -117,7 +121,7 @@ function unpassswdCertificateTlsKey {
 function createCertificateTls {
  echo "### Generate Certificate for Domain $CERT_CN"
  # Créez une clé privée RSA pour votre serveur Apache (elle sera au format PEM et chiffrée en Triple-DES):
- openssl genrsa -passout pass:$CERT_PASS -des3 -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key $NUMBITS
+ openssl genrsa -des3  -passout pass:$CERT_PASS -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key $NUMBITS
 
  # Enregistrez le fichier $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key et le mot de passe éventuellement défini en lieu sûr.
  #  echo "$CERT_PASS" > $$TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key.password
@@ -126,7 +130,8 @@ function createCertificateTls {
  # openssl rsa -passin pass:$CERT_PASS -noout -text -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key
  
  # Créez une Demande de signature de Certificat (CSR) à l'aide de la clé privée précédemment générée (la sortie sera au format PEM):
- openssl req -passin pass:$CERT_PASS -new -key $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr  -subj $CERT_SUBJ
+ # openssl req -new -passin pass:$CERT_PASS -key $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -subj $CERT_SUBJ
+ openssl req -new -sha512 -passin pass:$CERT_PASS -key $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -subj $CERT_SUBJ
 
  # Vous devez entrer le Nom de Domaine Pleinement Qualifié ("Fully Qualified Domain Name" ou FQDN) 
  # de votre serveur lorsqu'OpenSSL vous demande le "CommonName", 
@@ -144,8 +149,9 @@ function printCsr {
 
 function signCertificateTlsWithCa {
   # La commande qui signe la demande de certificat est la suivante : ==>  CRT = CSR + CA sign
-  openssl x509 -passin pass:$CA_PASS -req -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -CA $CA_DIR/$PUB_DIR/ca.crt -CAkey $CA_DIR/$PRIV_DIR/ca.key -CAcreateserial -CAserial $CA_DIR/$PRIV_DIR/ca.srl
-  
+  # openssl x509 -req -passin pass:$CA_PASS  -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -CA $CA_DIR/$PUB_DIR/ca.crt -CAkey $CA_DIR/$PRIV_DIR/ca.key -CAcreateserial -CAserial $CA_DIR/$PRIV_DIR/ca.srl
+  openssl x509 -req -days 365 -sha512 -passin pass:$CA_PASS  -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -CA $CA_DIR/$PUB_DIR/ca.crt -CAkey $CA_DIR/$PRIV_DIR/ca.key -CAcreateserial
+
   # printCrt
 }
 
@@ -301,7 +307,6 @@ function setup {
 
 function setupAutoSignCert {
     createAutoSignCertificateTls || exit 1
-    unpassswdCertificateTlsKey || exit 1
 }
 
 # ################################## ### #
