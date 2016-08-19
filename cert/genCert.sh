@@ -16,10 +16,10 @@ NUMBITS=4096
 
 # Gen Path
 export TARGET_DIR=certs
-export CA_DIR=certs-ca
-export PUB_DIR=pub
+export CA_DIR=$TARGET_DIR
+#export PUB_DIR=pub
 export PRIV_DIR=priv
-#export PUB_DIR=.
+export PUB_DIR=.
 #export PRIV_DIR=.
 
 
@@ -65,7 +65,7 @@ function createCA {
   openssl req -passin pass:$CA_PASS -new -x509 -nodes -sha1 -days 365 -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -extensions usr_cert  -subj $CA_SUBJ
 
   # Record password
-  echo "$CA_PASS" > $TARGET_DIR/$PRIV_DIR/ca-password.txt
+  echo "$CA_PASS" > $CA_DIR/$PRIV_DIR/ca-password.txt
 
   # Suppress password for CA Key
   unpassswdCAKey
@@ -101,7 +101,7 @@ function createCertificateTls {
  # openssl rsa -passin pass:$CERT_PASS -noout -text -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key
  
  # Créez une Demande de signature de Certificat (CSR) à l'aide de la clé privée précédemment générée (la sortie sera au format PEM):
- openssl req -passin pass:$CERT_PASS -new -key $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.csr  -subj $CERT_SUBJ
+ openssl req -passin pass:$CERT_PASS -new -key $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr  -subj $CERT_SUBJ
 
  # Vous devez entrer le Nom de Domaine Pleinement Qualifié ("Fully Qualified Domain Name" ou FQDN) 
  # de votre serveur lorsqu'OpenSSL vous demande le "CommonName", 
@@ -113,13 +113,13 @@ function createCertificateTls {
 
 function printCsr {
  # Vous pouvez afficher les détails de ce CSR avec :
- openssl req -passin pass:$CERT_PASS -noout -text -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.csr
+ openssl req -passin pass:$CERT_PASS -noout -text -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr
 }
 
 
 function signCertificateTlsWithCa {
   # La commande qui signe la demande de certificat est la suivante : ==>  CRT = CSR + CA sign
-  openssl x509 -passin pass:$CA_PASS -req -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.csr -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -CA $CA_DIR/$PUB_DIR/ca.crt -CAkey $CA_DIR/$PRIV_DIR/ca.key -CAcreateserial -CAserial $CA_DIR/$PRIV_DIR/ca.srl
+  openssl x509 -passin pass:$CA_PASS -req -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -CA $CA_DIR/$PUB_DIR/ca.crt -CAkey $CA_DIR/$PRIV_DIR/ca.key -CAcreateserial -CAserial $CA_DIR/$PRIV_DIR/ca.srl
   
   # printCrt
 }
@@ -185,7 +185,7 @@ function createNewKeystoreJKS {
 	echo "$FILE_KEYSTORE_JKS not found."
    fi
 
-   #keytool -certreq -keyalg RSA -alias server -file $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.csr -keystore server-keystore.jks -storepass $CA_PASS01 -keypass $CA_PASS01
+   #keytool -certreq -keyalg RSA -alias server -file $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -keystore server-keystore.jks -storepass $CA_PASS01 -keypass $CA_PASS01
    # keytool -genkey -alias server -keyalg rsa -keysize 1024 -keystore server-keystore.jks -storetype JKS -storepass $CA_PASS01 -keypass $CA_PASS01 -dname "CN=integ2, OU=COM, O=$CA_PASS, L=PARIS, ST=PARIS, C=FR, emailAddress=test@$CA_PASS.fr" 
 
    keytool -genkey -alias tomcat -keyalg RSA  -keysize $NUMBITS -keypass $CERT_PASS -keystore $FILE_KEYSTORE_JKS -storetype JKS -storepass $KEYSTORE_JKS_PASS -dname "CN=integ2, OU=COM, O=Organisation, L=PARIS, ST=PARIS, C=FR, emailAddress=test@organisation.fr"
@@ -222,7 +222,7 @@ function setup {
   # Create Ca Certificate ==> $CA_DIR/$PUB_DIR/ca.crt 
   createCA|| exit 1
 
-  # Create Server Certificate ==>  $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.csr
+  # Create Server Certificate ==>  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr
   createCertificateTls || exit 1
 
   # Sign Server Certificate With CA  ==> $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
