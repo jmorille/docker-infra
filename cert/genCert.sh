@@ -101,7 +101,12 @@ function printCA {
 
 function createAutoSignCertificateTls {
  # create Auto Sign certificat  SSL fot test  
-  openssl req -new -x509 -nodes -out  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.crt -keyout  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -subj $CERT_SUBJ
+  openssl req -new -x509 -nodes -out  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.crt -keyout  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -subj $CERT_SUBJ
+}
+
+function unpassswdCertificateTlsKey {
+ # Supprimer le chiffrement de la clé privée RSA (tout en conservant une copie de sauvegarde du fichier original) :
+ openssl rsa  -passin pass:$CERT_PASS  -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.key
 }
 
 
@@ -112,16 +117,16 @@ function createAutoSignCertificateTls {
 function createCertificateTls {
  echo "### Generate Certificate for Domain $CERT_CN"
  # Créez une clé privée RSA pour votre serveur Apache (elle sera au format PEM et chiffrée en Triple-DES):
- openssl genrsa -passout pass:$CERT_PASS -des3 -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key $NUMBITS
+ openssl genrsa -passout pass:$CERT_PASS -des3 -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key $NUMBITS
 
- # Enregistrez le fichier $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key et le mot de passe éventuellement défini en lieu sûr.
- #  echo "$CERT_PASS" > $$TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key.password
+ # Enregistrez le fichier $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key et le mot de passe éventuellement défini en lieu sûr.
+ #  echo "$CERT_PASS" > $$TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key.password
 
  # Vous pouvez afficher les détails de cette clé privée RSA à l'aide de la commande :
- # openssl rsa -passin pass:$CERT_PASS -noout -text -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key
+ # openssl rsa -passin pass:$CERT_PASS -noout -text -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key
  
  # Créez une Demande de signature de Certificat (CSR) à l'aide de la clé privée précédemment générée (la sortie sera au format PEM):
- openssl req -passin pass:$CERT_PASS -new -key $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr  -subj $CERT_SUBJ
+ openssl req -passin pass:$CERT_PASS -new -key $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr  -subj $CERT_SUBJ
 
  # Vous devez entrer le Nom de Domaine Pleinement Qualifié ("Fully Qualified Domain Name" ou FQDN) 
  # de votre serveur lorsqu'OpenSSL vous demande le "CommonName", 
@@ -156,10 +161,6 @@ function printCrt {
   openssl x509 -noout -text -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
 }
 
-function unpassswdCertificateTlsKey {
- # Supprimer le chiffrement de la clé privée RSA (tout en conservant une copie de sauvegarde du fichier original) :
- openssl rsa  -passin pass:$CERT_PASS  -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-nopasswd.key
-}
 
 
 # ################################## ### #
@@ -170,14 +171,14 @@ function unpassswdCertificateTlsKey {
 function mergeAllCertificats {
  # -->   $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
  # combines the cacerts file from the openssl distribution  $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem and the intermediate.crt file.
- cat $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt $CA_DIR/$PUB_DIR/ca.crt > $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
+ cat $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt $CA_DIR/$PUB_DIR/ca.crt > $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
 
  # After combining the ASCII data into one file, verify validity of certificate chain for sslserver usage:
  openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
 
  # Combine the private key, certificate, and CA chain into a PFX:
  # http://esupport.trendmicro.com/solution/en-US/1106466.aspx
- # openssl pkcs12 -export -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.pfx -inkey $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -inkey $CA_DIR/$PRIV_DIR/ca.key -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.crt -certfile $CA_DIR/$PUB_DIR/ca.crt
+ # openssl pkcs12 -export -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.pfx -inkey $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -inkey $CA_DIR/$PRIV_DIR/ca.key -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.crt -certfile $CA_DIR/$PUB_DIR/ca.crt
 
  # Convert crt to pem
  # openssl x509 -in allcacerts.crt -out allcacerts.pem -outform PEM
@@ -214,7 +215,7 @@ function createNewKeystorePKCS12 {
    fi
 
    # create PKCS12 format keystores.
-   openssl pkcs12 -passin pass:$CERT_PASS -passout pass:$KEYSTORE_PK12_PASS  -export -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -inkey $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -out $FILE_KEYSTORE_PKCS12 -name tomcat -CAfile  $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem -caname root -chain
+   openssl pkcs12 -passin pass:$CERT_PASS -passout pass:$KEYSTORE_PK12_PASS  -export -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -inkey $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -out $FILE_KEYSTORE_PKCS12 -name tomcat -CAfile  $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem -caname root -chain
  }
 
 function createNewKeystoreJKS {
@@ -298,6 +299,10 @@ function setup {
   #createDHECertificate || exit 1
 }
 
+function setupAutoSignCert {
+    createAutoSignCertificateTls || exit 1
+    unpassswdCertificateTlsKey || exit 1
+}
 
 # ################################## ### #
 # ### Usage info                      ### #
@@ -471,7 +476,7 @@ case "${!OPTIND-}" in
     printCA $2 || exit 1
     ;;
   autoSignCert)
-    createAutoSignCertificateTls || exit 1
+    setupAutoSignCert || exit 1
     ;;
   cert)
     createCertificateTls $2 || exit 1

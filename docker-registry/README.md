@@ -43,12 +43,14 @@ $ curl -k https://admin:admin@thor/v2/
 
 ## Docker login
 ### Using certificates for repository client verification
- Source : https://docs.docker.com/engine/security/certificates/
- 
+ Source : 
+* https://docs.docker.com/engine/security/certificates/
+* https://docs.docker.com/registry/insecure/
+
 The following illustrates a configuration with multiple certs:
 ```
   /etc/docker/certs.d/        <-- Certificate directory
-    └── localhost               <-- Hostname
+    └── thor:5000               <-- Hostname
        ├── client.cert          <-- Client certificate
        ├── client.key           <-- Client key
        └── localhost.crt        <-- Certificate authority that signed
@@ -58,5 +60,5 @@ The following illustrates a configuration with multiple certs:
 Copying the domain.crt file to /etc/docker/certs.d/myregistrydomain.com:5000/ca.crt ( https://docs.docker.com/registry/insecure/ )
 https://github.com/docker/machine/issues/1872
 ```
-$ docker login https://thor
+$ docker login thor:5000
 ```
