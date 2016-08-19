@@ -65,7 +65,7 @@ function createCA {
   openssl req -passin pass:$CA_PASS -new -x509 -nodes -sha1 -days 365 -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -extensions usr_cert  -subj $CA_SUBJ
 
   # Record password
-  echo "$CA_PASS"> $TARGET_DIR/$PRIV_DIR/ca-password.txt
+  echo "$CA_PASS" > $TARGET_DIR/$PRIV_DIR/ca-password.txt
 
   # Suppress password for CA Key
   unpassswdCAKey
