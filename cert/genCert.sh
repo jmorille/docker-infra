@@ -170,7 +170,7 @@ function unpassswdCertificateTlsKey {
 function mergeAllCertificats {
  # -->   $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
  # combines the cacerts file from the openssl distribution  $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem and the intermediate.crt file.
- cat $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.key $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt $CA_DIR/$PUB_DIR/ca.crt > $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
+ cat $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt $CA_DIR/$PUB_DIR/ca.crt > $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
 
  # After combining the ASCII data into one file, verify validity of certificate chain for sslserver usage:
  openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
