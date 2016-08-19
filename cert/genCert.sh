@@ -144,14 +144,18 @@ function mergeAllCertificats {
  cat $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt $CA_DIR/$PUB_DIR/ca.crt > $TARGET_DIR/$PUB_DIR/allcacerts.crt
 
  # After combining the ASCII data into one file, verify validity of certificate chain for sslserver usage:
- openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
+ openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/allcacerts.crt
 
  # Convert crt to pem
  # openssl x509 -in allcacerts.crt -out allcacerts.pem -outform PEM
  # openssl x509 -inform DER -in allcacerts.crt -out allcacerts.pem -text
 }
 
+function verifyCertificateTlsForCA {
+   openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
+}
 
+}
 function createNewKeystorePKCS12 {
  # -->  server.p12
    if [ -f "$FILE_KEYSTORE_PKCS12" ]
@@ -268,11 +272,12 @@ usage() {
 
     ACTION
       setup
-      ca                Generate CA (Certificat Autority)
-      autoSignCert      Generate auto sign Certificat for Test
-      cert              Generate Server Certificat (for a specific domain)
+      ca                Generate CA (Certificate Authority)
+      autoSignCert      Generate auto sign Certificate for Test
+      cert              Generate Server Certificate (for a specific domain)
       sign              Sign Server Certificate with CA
-      certSign          Generate Server Certificat Sign with existing CA
+      certSign          Generate Server Certificate Sign with existing CA
+      verifCertSign     Verify that a certificate was issued by a specific CA
       printCA
       printCsr
       printCrt
@@ -282,6 +287,7 @@ usage() {
 
 EOF
 }
+
 
 
 i=$(($# + 1)) # index of the first non-existing argument
@@ -419,6 +425,9 @@ case "${!OPTIND-}" in
   certSign)
     createCertificateTls $2 || exit 1
     signCertificateTlsWithCa $2 || exit 1
+    ;;
+  verifCertSign)
+    verifyCertificateTlsForCA $2 || exit 1
     ;;
   keystoreJKS)
     createNewKeystoreJKS $2 || exit 1
