@@ -16,7 +16,7 @@ NUMBITS=4096
 
 # Gen Path
 export TARGET_DIR=certs
-export CA_DIR=ca-certs
+export CA_DIR=certs-ca
 export PUB_DIR=pub
 export PRIV_DIR=priv
 #export PUB_DIR=.
@@ -65,9 +65,19 @@ function createCA {
   openssl req -passin pass:$CA_PASS -new -x509 -nodes -sha1 -days 365 -key $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PUB_DIR/ca.crt -extensions usr_cert  -subj $CA_SUBJ
 
   # Record password
-  echo $CA_PASS > $TARGET_DIR/$PRIV_DIR/ca-password.txt
+  echo "$CA_PASS"> $TARGET_DIR/$PRIV_DIR/ca-password.txt
+
+  # Suppress password for CA Key
+  unpassswdCAKey
+
   # printCA
 }
+
+function unpassswdCAKey {
+ # Supprimer le chiffrement de la clé privée RSA (tout en conservant une copie de sauvegarde du fichier original) :
+ openssl rsa  -passin pass:$CA_PASS  -in $CA_DIR/$PRIV_DIR/ca.key -out $CA_DIR/$PRIV_DIR/ca-nopasswd.key
+}
+
 
 function printCA {
    # Vous pouvez afficher les détails de ce certificat avec :
@@ -113,6 +123,13 @@ function signCertificateTlsWithCa {
   
   # printCrt
 }
+
+function copyCA2CertificateTls {
+  cp  $CA_DIR/$PUB_DIR/ca.crt  $TARGET_DIR/$PUB_DIR/ca.crt
+  cp $CA_DIR/$PRIV_DIR/ca.key  $TARGET_DIR/$PUB_DIR/ca.key
+}
+
+
 
 function printCrt {
   # Une fois la CSR signée, vous pouvez afficher les détails du certificat comme suit :
@@ -238,11 +255,13 @@ usage() {
 
     OPTIONS
        -h, --help                display this help and exit
-       -d, --domain DOMAIN       Domain for Certificate.
+       -d, --domain DOMAIN       Domain for Certificate
        -f, --file FILENAME       File Name for Certificate. (Default $CERT_FILENAME.(key|crt)
        -b, --numbits SIZE        Number of bits for the certificate (Default $NUMBITS bits)
+       --caDir PATH              CA Path Folder
+       --certDir PATH            Server Certificate Path Folder
        --caPass PASSWORD         CA Password.
-       --serverPass PASSWORD     Server Certificate Password.
+       --serverPass PASSWORD     Server Certificate Password
        -v                        verbose mode. Can be used multiple times for increased
                                  verbosity.
 
@@ -315,6 +334,12 @@ while true; do
             ;;
         b|numbits)
             NUMBITS=$OPTARG
+            ;;
+        caDir)
+            CA_DIR=$OPTARG
+            ;;
+        certDir)
+            TARGET_DIR=$OPTARG
             ;;
         caPass)
             echo "CA PAss option '$OPTARG'" >&2
