@@ -18,15 +18,19 @@ export PRIV_DIR=.
 # File
 # #############
 # ca.crt =  CAchain.pem
-CERT_FILENAME=domain
+SERVER_FILENAME=domain
 
 # Certificate
 # #############
 NUMBITS=4096
-CERT_CN="localhost"
-CA_PASS="za@%-<e*SzTt<r:k3CKX"
-INTER_PASS="(GQst?E<[649Tk<w"
-CERT_PASS="NPRn[X(9M(@82<>d7@*z"
+SERVER_CN="localhost"
+#CA_PASS="za@%-<e*SzTt<r:k3CKX"
+#INTER_PASS="(GQst?E<[649Tk<w"
+#SERVER_PASS="NPRn[X(9M(@82<>d7@*z"
+
+CA_PASS="capass"
+INTER_PASS="interpass"
+SERVER_PASS="certpass"
 
 
 # KeyStore
@@ -47,13 +51,15 @@ function createDestDir {
     mkdir -p $TARGET_DIR/$PUB_DIR
     mkdir -p $CA_DIR/$PRIV_DIR
     mkdir -p $CA_DIR/$PUB_DIR
+    mkdir -p $INTER_DIR/$PRIV_DIR
+    mkdir -p $INTER_DIR/$PUB_DIR
 }
 
 
 function docCertificateSubject {
   echo "###  Create the Server Key and Certificate Signing Request"
   echo "### ########################################################"
-  echo "### First parameter :  $CERT_PASS"
+  echo "### First parameter :  $SERVER_PASS"
   echo "/C  =  Country	                 GB"
   echo "/ST =  State	                 London"
   echo "/L  =  Location	                 London"
@@ -164,14 +170,14 @@ function verifyIntermediate {
 
 function createAutoSignCertificateTls {
  # create Auto Sign certificat  SSL fot test  
- # openssl req -new -x509 -nodes -out  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.crt -keyout  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -subj $CERT_SUBJ
- openssl req -newkey rsa:$NUMBITS -nodes -sha256 -days 365 -x509 -keyout $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.key -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.crt -subj $CERT_SUBJ
+ # openssl req -new -x509 -nodes -out  $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME.crt -keyout  $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME.key -subj $CERT_SUBJ
+ openssl req -newkey rsa:$NUMBITS -nodes -sha256 -days 365 -x509 -keyout $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME.key -out $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME.crt -subj $CERT_SUBJ
 }
 
 
 function unpassswdCertificateTlsKey {
  # Supprimer le chiffrement de la clé privée RSA (tout en conservant une copie de sauvegarde du fichier original) :
- openssl rsa  -passin pass:$CERT_PASS  -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.key
+ openssl rsa  -passin pass:$SERVER_PASS  -in $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME-secure.key -out $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME.key
 }
 
 
@@ -180,20 +186,20 @@ function unpassswdCertificateTlsKey {
 # ############################# #
 
 function createCertificateTls {
- echo "### Generate Certificate for Domain $CERT_CN"
+ echo "### Generate Certificate for Domain $SERVER_CN"
  # Créez une clé privée RSA pour votre serveur Apache (elle sera au format PEM et chiffrée en Triple-DES):
- openssl genrsa -aes256  -passout pass:$CERT_PASS -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key $NUMBITS
+ openssl genrsa -aes256  -passout pass:$SERVER_PASS -out $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME-secure.key $NUMBITS
 
- # Enregistrez le fichier $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key et le mot de passe éventuellement défini en lieu sûr.
- #  echo "$CERT_PASS" > $$TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key.password
+ # Enregistrez le fichier $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME-secure.key et le mot de passe éventuellement défini en lieu sûr.
+ #  echo "$SERVER_PASS" > $$TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME-secure.key.password
 
  # Vous pouvez afficher les détails de cette clé privée RSA à l'aide de la commande :
- # openssl rsa -passin pass:$CERT_PASS -noout -text -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key
+ # openssl rsa -passin pass:$SERVER_PASS -noout -text -in $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME-secure.key
  
  # Créez une Demande de signature de Certificat (CSR) à l'aide de la clé privée précédemment générée (la sortie sera au format PEM):
- # openssl req -new -passin pass:$CERT_PASS -key $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -subj $CERT_SUBJ
+ # openssl req -new -passin pass:$SERVER_PASS -key $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME-secure.key -out $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME.csr -subj $CERT_SUBJ
  #  -extensions server_cert
- openssl req -new -sha256 -passin pass:$CERT_PASS -key $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -out $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -subj $CERT_SUBJ
+ openssl req -new -sha256 -passin pass:$SERVER_PASS -key $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME-secure.key -out $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME.csr -subj $CERT_SUBJ
 
  # Vous devez entrer le Nom de Domaine Pleinement Qualifié ("Fully Qualified Domain Name" ou FQDN) 
  # de votre serveur lorsqu'OpenSSL vous demande le "CommonName", 
@@ -209,7 +215,7 @@ function printCsr {
    echo "# ### Server Certificate Unsigned                     ### #"
    echo "# ### ############################################### ### #"
    # Vous pouvez afficher les détails de ce CSR avec :
-   openssl req -passin pass:$CERT_PASS -noout -text -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr
+   openssl req -passin pass:$SERVER_PASS -noout -text -in $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME.csr
    echo "# ### ############################################### ### #"
    echo ""
 }
@@ -217,8 +223,8 @@ function printCsr {
 
 function signCertificateTlsWithCa {
   # La commande qui signe la demande de certificat est la suivante : ==>  CRT = CSR + CA sign
-  # openssl x509 -req -passin pass:$CA_PASS  -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -CA $CA_DIR/$PUB_DIR/ca.crt -CAkey $CA_DIR/$PRIV_DIR/ca.key -CAcreateserial -CAserial $CA_DIR/$PRIV_DIR/ca.srl
-  openssl x509 -req -days 365 -sha512 -passin pass:$CA_PASS  -in $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -CA $CA_DIR/$PUB_DIR/ca.crt -CAkey $CA_DIR/$PRIV_DIR/ca.key -CAcreateserial -CAserial $CA_DIR/$PRIV_DIR/ca.srl
+  # openssl x509 -req -passin pass:$CA_PASS  -in $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME.csr -out $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME.crt -CA $CA_DIR/$PUB_DIR/ca.crt -CAkey $CA_DIR/$PRIV_DIR/ca.key -CAcreateserial -CAserial $CA_DIR/$PRIV_DIR/ca.srl
+  openssl x509 -req -days 365 -sha512 -passin pass:$CA_PASS  -in $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME.csr -out $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME.crt -CA $CA_DIR/$PUB_DIR/ca.crt -CAkey $CA_DIR/$PRIV_DIR/ca.key -CAcreateserial -CAserial $CA_DIR/$PRIV_DIR/ca.srl
 
   printCrt
 }
@@ -236,14 +242,14 @@ function printCrt {
    echo "# ### Server Certificate Unsigned                     ### #"
    echo "# ### ############################################### ### #"
   # Une fois la CSR signée, vous pouvez afficher les détails du certificat comme suit :
-  openssl x509 -noout -text -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
+  openssl x509 -noout -text -in $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME.crt
    echo "# ### ############################################### ### #"
    verifyServer
    echo "# ### ############################################### ### #"
 }
 
 function verifyServer {
-  openssl verify -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
+  openssl verify -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME.crt
 }
 
 
@@ -254,16 +260,16 @@ function verifyServer {
 
 
 function mergeAllCertificats {
- # -->   $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
- # combines the cacerts file from the openssl distribution  $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem and the intermediate.crt file.
- cat $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt $CA_DIR/$PUB_DIR/ca.crt > $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
+ # -->   $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME-chain.pem
+ # combines the cacerts file from the openssl distribution  $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME-chain.pem and the intermediate.crt file.
+ cat $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME-secure.key $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME.crt $CA_DIR/$PUB_DIR/ca.crt > $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME-chain.pem
 
  # After combining the ASCII data into one file, verify validity of certificate chain for sslserver usage:
- openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
+ openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME-chain.pem
 
  # Combine the private key, certificate, and CA chain into a PFX:
  # http://esupport.trendmicro.com/solution/en-US/1106466.aspx
- # openssl pkcs12 -export -out $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.pfx -inkey $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -inkey $CA_DIR/$PRIV_DIR/ca.key -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chains.crt -certfile $CA_DIR/$PUB_DIR/ca.crt
+ # openssl pkcs12 -export -out $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME-chains.pfx -inkey $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME-secure.key -inkey $CA_DIR/$PRIV_DIR/ca.key -in $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME-chains.crt -certfile $CA_DIR/$PUB_DIR/ca.crt
 
  # Convert crt to pem
  # openssl x509 -in allcacerts.crt -out allcacerts.pem -outform PEM
@@ -271,7 +277,7 @@ function mergeAllCertificats {
 }
 
 function verifyCertificateTlsForCA {
-   openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
+   openssl verify -verbose -purpose sslserver -CAfile $CA_DIR/$PUB_DIR/ca.crt $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME.crt
 }
 
 
@@ -290,7 +296,7 @@ function createNewKeystorePKCS12 {
    fi
 
    # Test for all Certificate File
-   FILE_ALL_CERT= $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
+   FILE_ALL_CERT= $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME-chain.pem
    if [ -f "$FILE_ALL_CERT" ]
    then
 	echo "$FILE_ALL_CERT found." 
@@ -300,7 +306,7 @@ function createNewKeystorePKCS12 {
    fi
 
    # create PKCS12 format keystores.
-   openssl pkcs12 -passin pass:$CERT_PASS -passout pass:$KEYSTORE_PK12_PASS  -export -in $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt -inkey $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME-secure.key -out $FILE_KEYSTORE_PKCS12 -name tomcat -CAfile  $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem -caname root -chain
+   openssl pkcs12 -passin pass:$SERVER_PASS -passout pass:$KEYSTORE_PK12_PASS  -export -in $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME.crt -inkey $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME-secure.key -out $FILE_KEYSTORE_PKCS12 -name tomcat -CAfile  $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME-chain.pem -caname root -chain
  }
 
 function createNewKeystoreJKS {
@@ -313,18 +319,18 @@ function createNewKeystoreJKS {
 	echo "$FILE_KEYSTORE_JKS not found."
    fi
 
-   #keytool -certreq -keyalg RSA -alias server -file $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr -keystore server-keystore.jks -storepass $CA_PASS01 -keypass $CA_PASS01
+   #keytool -certreq -keyalg RSA -alias server -file $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME.csr -keystore server-keystore.jks -storepass $CA_PASS01 -keypass $CA_PASS01
    # keytool -genkey -alias server -keyalg rsa -keysize 1024 -keystore server-keystore.jks -storetype JKS -storepass $CA_PASS01 -keypass $CA_PASS01 -dname "CN=integ2, OU=COM, O=$CA_PASS, L=PARIS, ST=PARIS, C=FR, emailAddress=test@$CA_PASS.fr" 
 
-   keytool -genkey -alias tomcat -keyalg RSA  -keysize $NUMBITS -keypass $CERT_PASS -keystore $FILE_KEYSTORE_JKS -storetype JKS -storepass $KEYSTORE_JKS_PASS -dname "CN=integ2, OU=COM, O=Organisation, L=PARIS, ST=PARIS, C=FR, emailAddress=test@organisation.fr"
+   keytool -genkey -alias tomcat -keyalg RSA  -keysize $NUMBITS -keypass $SERVER_PASS -keystore $FILE_KEYSTORE_JKS -storetype JKS -storepass $KEYSTORE_JKS_PASS -dname "CN=integ2, OU=COM, O=Organisation, L=PARIS, ST=PARIS, C=FR, emailAddress=test@organisation.fr"
 }
 
 function importKeystoreJKSCertificates { 
  # Import the Chain Certificate into your keystore   
- # keytool -import -alias root -keystore $FILE_KEYSTORE_JKS -storepass $KEYSTORE_JKS_PASS -trustcacerts -noprompt -file   $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
+ # keytool -import -alias root -keystore $FILE_KEYSTORE_JKS -storepass $KEYSTORE_JKS_PASS -trustcacerts -noprompt -file   $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME-chain.pem
 
  # keytool -import -alias root -keystore $FILE_KEYSTORE_JKS -storepass $KEYSTORE_JKS_PASS -trustcacerts -noprompt -file  $CA_DIR/$PUB_DIR/ca.crt
- # keytool -import -alias tomcat -keystore $FILE_KEYSTORE_JKS -storepass $KEYSTORE_JKS_PASS -trustcacerts -noprompt -file  $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
+ # keytool -import -alias tomcat -keystore $FILE_KEYSTORE_JKS -storepass $KEYSTORE_JKS_PASS -trustcacerts -noprompt -file  $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME.crt
  # keytool -alias dmzlan -import -keystore /DATA/API/certificates/api_keystore.jks -file /DATA/API/certificates/server-lanDmz.crt -storepass $KEYSTORE_JKS_PASS
  
  # List KeyStore
@@ -360,19 +366,19 @@ function setup {
   # Create Ca Certificate ==> $CA_DIR/$PUB_DIR/ca.crt 
   createCA|| exit 1
 
-  # Create Server Certificate ==>  $TARGET_DIR/$PRIV_DIR/$CERT_FILENAME.csr
+  # Create Server Certificate ==>  $TARGET_DIR/$PRIV_DIR/$SERVER_FILENAME.csr
   createCertificateTls || exit 1
 
-  # Sign Server Certificate With CA  ==> $TARGET_DIR/$PUB_DIR/$CERT_FILENAME.crt
+  # Sign Server Certificate With CA  ==> $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME.crt
   signCertificateTlsWithCa || exit 1
 
   # Supprimer le chiffrement de la clé privée RSA  : ==> server-nopasswd.key
   unpassswdCertificateTlsKey || exit 1
   
-  # Merge All Certificats ==>  $TARGET_DIR/$PUB_DIR/$CERT_FILENAME-chain.pem
+  # Merge All Certificats ==>  $TARGET_DIR/$PUB_DIR/$SERVER_FILENAME-chain.pem
   mergeAllCertificats || exit 1
   
-  # KeyStore PKCS12 ==> $CERT_FILENAME.p12
+  # KeyStore PKCS12 ==> $SERVER_FILENAME.p12
   # createNewKeystorePKCS12 || exit 1
   
   # KeyStore JKS  ==>  keystore-server.jks 
@@ -402,11 +408,12 @@ usage() {
     OPTIONS
        -h, --help                display this help and exit
        -d, --domain DOMAIN       Domain for Certificate
-       -f, --file FILENAME       File Name for Certificate. (Default $CERT_FILENAME.(key|crt)
+       -f, --file FILENAME       File Name for Certificate. (Default $SERVER_FILENAME.(key|crt)
        -b, --numbits SIZE        Number of bits for the certificate (Default $NUMBITS bits)
        --caDir PATH              CA Path Folder
        --certDir PATH            Server Certificate Path Folder
        --caPass PASSWORD         CA Password.
+       --interPass PASSWORD     Intermediate Certificate Password
        --serverPass PASSWORD     Server Certificate Password
        -v                        verbose mode. Can be used multiple times for increased
                                  verbosity.
@@ -480,10 +487,10 @@ while true; do
             # if getopts would've given us long options
             ;;
         d|domain)
-            export CERT_CN=$OPTARG
+            export SERVER_CN=$OPTARG
             ;;
         f|file)
-            CERT_FILENAME=$OPTARG
+            SERVER_FILENAME=$OPTARG
             ;;
         b|numbits)
             NUMBITS=$OPTARG
@@ -495,12 +502,16 @@ while true; do
             TARGET_DIR=$OPTARG
             ;;
         caPass)
-            echo "CA PAss option '$OPTARG'" >&2
+            echo "CA Passwd option '$OPTARG'" >&2
             CA_PASS=$OPTARG
             ;;
+        interPass)
+            echo "Intermediate Passwd option '$OPTARG'" >&2
+            INTER_PASS=$OPTARG
+            ;;
         serverPass)
-            echo "CERT PAss option '$OPTARG'" >&2
-            CERT_PASS=$OPTARG
+            echo "SERVER Passwd option '$OPTARG'" >&2
+            SERVER_PASS=$OPTARG
             ;;
         h|help)
             usage
@@ -525,7 +536,7 @@ done
 COMMON_SUBJ="/C=FR/ST=France/O=Organisation"
 CA_SUBJ="$COMMON_SUBJ/L=Paris/OU=DSI/CN=RootCA"
 INTER_SUBJ="$COMMON_SUBJ/L=Paris/OU=DSI/CN=IntermediateCA"
-CERT_SUBJ="$COMMON_SUBJ/L=Paris/OU=IT/CN=$CERT_CN"
+CERT_SUBJ="$COMMON_SUBJ/L=Paris/OU=IT/CN=$SERVER_CN"
 
 
 # ################################## ### #
@@ -533,10 +544,10 @@ CERT_SUBJ="$COMMON_SUBJ/L=Paris/OU=IT/CN=$CERT_CN"
 # ################################## ### #
 echo ""
 echo "# ########################################## #"
-echo "# Domain=$CERT_CN"
+echo "# Domain=$SERVER_CN"
 echo "# Certificat Subject=$CERT_SUBJ"
 echo "# CA password=$CA_PASS"
-echo "# Certificat password=$CERT_PASS"
+echo "# Certificat password=$SERVER_PASS"
 echo "# ########################################## #"
 echo "# First non-option-argument (if exists): ${!OPTIND-}"
 echo "# ########################################## #"
