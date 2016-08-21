@@ -130,11 +130,14 @@ function createIntermediate {
       -out $INTER_DIR/$PRIV_DIR/intermediate.csr.pem \
       -subj $INTER_SUBJ
 
+  touch $INTER_DIR/$PRIV_DIR/index.txt
   openssl ca -extensions v3_intermediate_ca -days 3650 -notext -md sha256 \
-      -passin pass:$INTER_PASS \
-      -cert $CA_DIR/$PUB_DIR/ca.crt  \
+      -passin pass:$CA_PASS \
+      -cert $CA_DIR/$PUB_DIR/ca.crt -keyfile $CA_DIR/$PRIV_DIR/ca.key \
       -in $INTER_DIR/$PRIV_DIR/intermediate.csr.pem \
-      -out $INTER_DIR/$PUB_DIR/intermediate.cert.pem
+      -outdir $INTER_DIR/$PUB_DIR \
+      -out $INTER_DIR/$PUB_DIR/intermediate.cert.pem  -verbose
+
 
   chmod 444 $INTER_DIR/$PUB_DIR/intermediate.cert.pem
 
