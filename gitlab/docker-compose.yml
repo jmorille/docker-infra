@@ -22,7 +22,7 @@ web:
       gitlab_rails['smtp_tls'] = false
       gitlab_rails['smtp_openssl_verify_mode'] = 'peer'
   ports:
-    - '9090:9090'
+    - '9091:9090'
     - '2224:22'
   volumes:
     - './certs:/etc/gitlab/certs'
