@@ -19,6 +19,7 @@ registry:
 
 registryUI:
   restart: always
+  hostname: 'thor'
   image: konradkleine/docker-registry-frontend:v2
   ports:
     - 80:80
