@@ -21,4 +21,6 @@ RUN apt-get update && apt-get install -y wget
 # #######################
 RUN wget https://dl.eff.org/certbot-auto && \
     chmod a+x certbot-auto
-RUN    ./certbot-auto -n  -d thor
+RUN  /opt/certbot/certbot-auto -n  --os-packages-only
+
+#RUN    ./certbot-auto -n  -d thor
