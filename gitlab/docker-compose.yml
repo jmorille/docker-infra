@@ -7,12 +7,13 @@ web:
       external_url 'https://thor:9090'
       gitlab_rails['gitlab_shell_ssh_port'] = 2224
       nginx['redirect_http_to_https'] = true
-      nginx['ssl_certificate'] = "/etc/gitlab/ssl/domain.crt"
-      nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/domain.key"
+      nginx['ssl_certificate'] = "/etc/gitlab/certs/domain.crt"
+      nginx['ssl_certificate_key'] = "/etc/gitlab/certs/domain.key"
   ports:
     - '9090:9090'
     - '2224:22'
   volumes:
+    - './certs:/etc/gitlab/certs'
     - './srv/gitlab/config:/etc/gitlab'
     - './srv/gitlab/logs:/var/log/gitlab'
     - './srv/gitlab/data:/var/opt/gitlab'
