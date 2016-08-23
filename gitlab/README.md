@@ -5,6 +5,9 @@ Git Lab
 ### Docker images install
 http://docs.gitlab.com/omnibus/docker/
 
+### Docker registry config
+https://about.gitlab.com/2016/05/23/gitlab-container-registry/
+
 ### Enable Https
 http://docs.gitlab.com/omnibus/settings/nginx.html#sts=Enable HTTPS
 
