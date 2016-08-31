@@ -54,5 +54,5 @@ sed -i -e "s/post_max_size\s*=\s*8M/post_max_size = 100M/g" ${php_conf}
 #CMD ["/usr/sbin/nginx"]
 #CMD ["/usr/local/nginx/sbin/nginx", "-g", "daemon off;"]
 #CMD  "/bin/bash -c /usr/sbin/service php5-fpm restart && /usr/local/nginx/sbin/nginx"
-
+#CMD ["/usr/local/nginx/sbin/nginx"]
 CMD ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisord.conf"]

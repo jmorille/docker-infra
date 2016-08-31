@@ -37,7 +37,8 @@ docker run -ti -p 80:80 -p 443:443 \
 ```
 
 # Sample
-https://github.com/ngineered/nginx-php-fpm/blob/master/Dockerfile
+* https://github.com/eugeneware/docker-wordpress-nginx/blob/master/supervisord.conf
+* https://github.com/ngineered/nginx-php-fpm/blob/master/Dockerfile
 
 # Multi process
 http://stackoverflow.com/questions/23692470/why-cant-i-use-docker-cmd-multiple-times-to-run-multiple-services
