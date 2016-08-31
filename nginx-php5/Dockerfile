@@ -14,8 +14,11 @@ VOLUME ["/data/html", "/var/log/nginx", "/var/lib/nginx", "/data/cert" ]
 # #######################
 RUN apt-get update -qq && \
     apt-get install -yqq --force-yes  --fix-missing \
+       supervisor \
        php5-fpm  \
        php5-mysql
+
+ADD build/supervisord.conf /etc/supervisord.conf
 
 COPY /build/sites-enabled /usr/local/nginx/sites-enabled
 COPY /build/html /data/html
@@ -50,4 +53,6 @@ sed -i -e "s/post_max_size\s*=\s*8M/post_max_size = 100M/g" ${php_conf}
 # WORKDIR /etc/nginx/
 #CMD ["/usr/sbin/nginx"]
 #CMD ["/usr/local/nginx/sbin/nginx", "-g", "daemon off;"]
-CMD  "/bin/bash -c /usr/sbin/service php5-fpm restart && /usr/local/nginx/sbin/nginx"
+#CMD  "/bin/bash -c /usr/sbin/service php5-fpm restart && /usr/local/nginx/sbin/nginx"
+
+CMD ["/usr/bin/supervisord", "-n", "-c",  "/etc/supervisord.conf"]
