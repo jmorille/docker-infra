@@ -1,17 +1,15 @@
 from debian
 
-# ENV DOWNLOAD_URL="https://download.elastic.co/"
-ENV DOWNLOAD_URL="https://artifacts.elastic.co/downloads"
+# ENV EATS_VERSION=1.3.1  DOWNLOAD_URL="https://download.elastic.co/"
+ENV BEATS_VERSION=5.0.0-beta1-linux  DOWNLOAD_URL="https://artifacts.elastic.co/downloads"
 
-
-ENV BEATS_VERSION=5.0.0-beta1-linux
 
 ENV FILEBEAT_SHA1=a2327f38b487525b75e8132ae30a01d64e24c829
 ENV METRICBEAT_SHA1=3fa91156bbe15a8b26b29041a9c6ead1737fe6be
 ENV PACKETBEAT_SHA1=276701445dc45ccf91210f30eaad7274de1e81d3
 
 # add our user and group first to make sure their IDs get assigned consistently
-RUN groupadd -r beat && useradd -r -m -g beat beat
+RUN groupadd --gid 1000 -r beat && useradd -r -m -g beat --uid 1000 beat
 
 
 RUN apt-get update && apt-get install -y \
