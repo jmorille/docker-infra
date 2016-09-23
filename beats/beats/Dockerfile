@@ -1,7 +1,15 @@
 from debian
 
-ENV BEATS_VERSION=1.3.1
-ENV FILEBEAT_SHA1=693c04e2251498e73436cfc2b36a3a0aec920a2d
+ENV DOWNLOAD_URL="https://download.elastic.co/"
+ENV DOWNLOAD_URL="https://artifacts.elastic.co/downloads"
+
+
+
+ENV BEATS_VERSION=5.0.0-beta1-linux
+
+ENV FILEBEAT_SHA1=a2327f38b487525b75e8132ae30a01d64e24c829
+ENV METRICBEAT_SHA1=3fa91156bbe15a8b26b29041a9c6ead1737fe6be
+
 
 # add our user and group first to make sure their IDs get assigned consistently
 RUN groupadd -r beat && useradd -r -m -g beat beat
@@ -38,13 +46,27 @@ RUN set -x \
 	&& tini -h
 
 
+
+# metricbeat
 RUN set -x \
-	&& wget -O filebeat.tar.gz "https://download.elastic.co/beats/filebeat/filebeat-${BEATS_VERSION}-x86_64.tar.gz" \
+	&& wget -O metricbeat.tar.gz "$DOWNLOAD_URL/beats/metricbeat/metricbeat-${BEATS_VERSION}-x86_64.tar.gz " \
+	&& echo "${METRICBEAT_SHA1} *metricbeat.tar.gz" | sha1sum -c - \
+	&& mkdir -p /opt/metricbeat \
+	&& tar -xz --strip-components=1 -C /opt/metricbeat -f metricbeat.tar.gz \
+	&& chown -R beat:beat /opt/metricbeat \
+	&& rm metricbeat.tar.gz
+
+
+# Filebeat
+RUN set -x \
+	&& wget -O filebeat.tar.gz "$DOWNLOAD_URL/beats/filebeat/filebeat-${BEATS_VERSION}-x86_64.tar.gz" \
 	&& echo "${FILEBEAT_SHA1} *filebeat.tar.gz" | sha1sum -c - \
 	&& mkdir -p /opt/filebeat \
-	&& tar -xz --strip-components=1 -C /opt/beats -f filebeat.tar.gz \
+	&& tar -xz --strip-components=1 -C /opt/filebeat -f filebeat.tar.gz \
 	&& chown -R beat:beat /opt/filebeat \
 	&& rm filebeat.tar.gz
+
+ 
 
 
 ADD filebeat.yml /config/filebeat
