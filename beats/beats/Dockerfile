@@ -76,6 +76,6 @@ RUN set -x \
 	&& rm packetbeat.tar.gz
 
 
-ADD filebeat.yml /config/filebeat
+ADD config /config
 
 CMD ["/opt/filebeat", "-e", "-c", "/config/filebeat.yml", "-d", "'"publish'"]
