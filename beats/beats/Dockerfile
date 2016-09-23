@@ -49,7 +49,7 @@ RUN set -x \
 
 # metricbeat
 RUN set -x \
-	&& wget -O metricbeat.tar.gz "$DOWNLOAD_URL/beats/metricbeat/metricbeat-${BEATS_VERSION}-x86_64.tar.gz " \
+	&& wget -O metricbeat.tar.gz "$DOWNLOAD_URL/beats/metricbeat/metricbeat-${BEATS_VERSION}-x86_64.tar.gz" \
 	&& echo "${METRICBEAT_SHA1} *metricbeat.tar.gz" | sha1sum -c - \
 	&& mkdir -p /opt/metricbeat \
 	&& tar -xz --strip-components=1 -C /opt/metricbeat -f metricbeat.tar.gz \
