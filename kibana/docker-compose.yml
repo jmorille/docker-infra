@@ -1,6 +1,6 @@
 elasticsearch:
   restart: always
-  image: elasticsearch:latest
+  image: elasticsearch:5
   ports:
     - 9200:9200
     - 9300:9300
@@ -9,10 +9,13 @@ elasticsearch:
   volumes:
 #    - ./config:/usr/share/elasticsearch/config
     - ./esdata:/usr/share/elasticsearch/data
+    - ./log:/var/log/elasticsearch
+  environment:
+    ES_JAVA_OPTS: "-Xms2g -Xmx2g"
 
 kibana:
   restart: always
-  image: kibana:latest
+  image: kibana:5
   ports:
     - 5601:5601
   links:

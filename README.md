@@ -1,5 +1,9 @@
 docker-infra
 ============
+# Install Docker compose 
+```
+sudo  pip install docker-compose
+```
 
 
 # Docker command

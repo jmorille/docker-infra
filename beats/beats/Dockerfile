@@ -17,6 +17,7 @@ RUN groupadd -r beat && useradd -r -m -g beat beat
 RUN apt-get update && apt-get install -y \
 		ca-certificates \
 		wget \
+		curl \
 		libpcap0.8 \
 	--no-install-recommends && rm -rf /var/lib/apt/lists/*
 

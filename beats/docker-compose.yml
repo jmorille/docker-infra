@@ -6,7 +6,7 @@ logstash:
   expose:
     - 5044
   volumes:
-    - /var/log:/var/log
+    - ./log:/var/log
 
 beat:
   restart: always

@@ -1,4 +1,4 @@
-from logstash
+from logstash:5
 
 WORKDIR  /opt/logstash
 RUN   ./bin/logstash-plugin install logstash-input-beats
