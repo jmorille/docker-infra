@@ -8,7 +8,7 @@ ENV BEATS_VERSION=5.0.0-beta1-linux
 
 ENV FILEBEAT_SHA1=a2327f38b487525b75e8132ae30a01d64e24c829
 ENV METRICBEAT_SHA1=3fa91156bbe15a8b26b29041a9c6ead1737fe6be
-
+ENV PACKETBEAT_SHA1=276701445dc45ccf91210f30eaad7274de1e81d3
 
 # add our user and group first to make sure their IDs get assigned consistently
 RUN groupadd -r beat && useradd -r -m -g beat beat
@@ -17,6 +17,7 @@ RUN groupadd -r beat && useradd -r -m -g beat beat
 RUN apt-get update && apt-get install -y \
 		ca-certificates \
 		wget \
+		libpcap0.8 \
 	--no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 
@@ -66,6 +67,14 @@ RUN set -x \
 	&& rm filebeat.tar.gz
 
  
+# packetbeat 
+RUN set -x \
+	&& wget -O packetbeat.tar.gz "$DOWNLOAD_URL/beats/packetbeat/packetbeat-${BEATS_VERSION}-x86_64.tar.gz" \
+	&& echo "${PACKETBEAT_SHA1} *packetbeat.tar.gz" | sha1sum -c - \
+	&& mkdir -p /opt/packetbeat \
+	&& tar -xz --strip-components=1 -C /opt/packetbeat -f packetbeat.tar.gz \
+	&& chown -R beat:beat /opt/packetbeat \
+	&& rm packetbeat.tar.gz
 
 
 ADD filebeat.yml /config/filebeat
