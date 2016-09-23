@@ -47,6 +47,6 @@ RUN set -x \
 	&& rm filebeat.tar.gz
 
 
-ADD filebeat.yml /opt/filebeat
+ADD filebeat.yml /config/filebeat
 
-CMD ["/opt/filebeat", "e']
+CMD ["/opt/filebeat", "-e", "-c", "/config/filebeat.yml", "-d", "'"publish'"]
