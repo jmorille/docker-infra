@@ -1,8 +1,7 @@
 from debian
 
-ENV DOWNLOAD_URL="https://download.elastic.co/"
+# ENV DOWNLOAD_URL="https://download.elastic.co/"
 ENV DOWNLOAD_URL="https://artifacts.elastic.co/downloads"
-
 
 
 ENV BEATS_VERSION=5.0.0-beta1-linux
