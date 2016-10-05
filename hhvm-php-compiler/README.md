@@ -6,6 +6,9 @@ hhvm-php-compiler
 docker build --rm -t jmorille/hhvm .
 ```
 
+### RHEL 7
+https://github.com/facebook/hhvm/wiki/building-and-installing-hhvm-on-rhel-7
+
 
 ### Doc
 
