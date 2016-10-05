@@ -6,6 +6,10 @@ hhvm-php-compiler
  docker build --rm -t jmorille/hhvm .
 ```
 
+With proxy
+```
+docker build --build-arg http_proxy=$http_proxy --rm -t jmorille/hhvm .
+```
 
 ## Run
 ```
@@ -13,8 +17,15 @@ docker run --rm -it -v $(pwd)/test:/data/php -v $(pwd)/hhvm:/data/hhvm -p 8080:8
 ```
 
 
+## Compilation
+```
+docker run -it --rm -v $(pwd)/php:/data/php jmorille/hhvm  
+```
+ 
+ 
 ## Configure Nginx
 https://docs.hhvm.com/hhvm/advanced-usage/fastCGI
+
 
 ### RHEL 7
 https://github.com/facebook/hhvm/wiki/building-and-installing-hhvm-on-rhel-7
