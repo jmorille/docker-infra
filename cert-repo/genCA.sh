@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export CA_PASS=1234
+
 export TARGET_DIR=root-ca
 
 export CA_DIR=root-ca
@@ -30,13 +32,21 @@ function createDestDir {
 }
 
 function genCA {
+   echo ""
+   echo "### Create the root CA"
+   echo "### ############################"
     openssl req -new \
         -config root-ca.conf \
+        -passout pass:$CA_PASS \
         -out $TARGET_DIR/root-ca.csr \
         -keyout $CA_PRIVATE_DIR/root-ca.key
 
+   echo ""
+   echo "### Self-signed certificate CA"
+   echo "### ############################"
    openssl ca -selfsign \
        -config root-ca.conf \
+       -passin pass:$CA_PASS \
        -in $TARGET_DIR/root-ca.csr \
        -out $TARGET_DIR/root-ca.crt \
        -extensions ca_ext
@@ -51,14 +61,22 @@ function revokeCA {
 }
 
 function genOpeCA {
+   echo ""
+   echo "### Generate a CRL from the new CA"
+   echo "### #################################"
    # To generate a CRL from the new CA, use the -gencrl switch of the ca command:
    openssl ca -gencrl \
        -config root-ca.conf \
+       -passin pass:$CA_PASS \
        -out $TARGET_DIR/root-ca.crl
 
-   # To issue a certificate, invoke the ca command with the desired parameters.
+   echo ""
+   echo "### Issue a certificate"
+   echo "### #################################"
+   # To issue a certificate,
    openssl ca \
        -config root-ca.conf \
+       -passin pass:$CA_PASS \
        -in $TARGET_DIR/sub-ca.csr \
        -out $TARGET_DIR/sub-ca.crt \
        -extensions sub_ca_ext
@@ -116,4 +134,4 @@ rm -rf $CA_DIR
 createDestDir
 genCA
 genOpeCA
-genOcsp
+#genOcsp
