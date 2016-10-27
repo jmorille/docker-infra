@@ -62,3 +62,11 @@ https://github.com/docker/machine/issues/1872
 ```
 $ docker login thor:5000
 ```
+
+
+# Docker Daemon for use proxy
+You will need to pass the --registry-mirror option to your Docker daemon on startup:
+```
+docker --registry-mirror=https://<my-docker-mirror-host> daemon
+```
+
