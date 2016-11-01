@@ -12,6 +12,7 @@ elasticsearch:
     - ./log:/var/log/elasticsearch
   environment:
     ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+    es.network.bind_host: 0.0.0.0
 
 kibana:
   restart: always

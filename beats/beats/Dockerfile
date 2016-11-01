@@ -1,12 +1,12 @@
 from debian
 
 # ENV EATS_VERSION=1.3.1  DOWNLOAD_URL="https://download.elastic.co/"
-ENV BEATS_VERSION=5.0.0-rc1-linux  DOWNLOAD_URL="https://artifacts.elastic.co/downloads"
+ENV BEATS_VERSION=5.0.0-linux  DOWNLOAD_URL="https://artifacts.elastic.co/downloads"
+ 
 
-
-ENV FILEBEAT_SHA1=011782ea01a0f4550c8a9fad61ac2564cc53ca87
-ENV METRICBEAT_SHA1=d23c04cc8edc4671401b66f43d4d31c11b091cf2
-ENV PACKETBEAT_SHA1=504f019e190853fd014e322930eb9318d8171ee7
+ENV FILEBEAT_SHA1=33f55b0d282e11f2df78a00ffee1deaab9d2f24a
+ENV METRICBEAT_SHA1=5a030b54f3cdeb91758c707f759c7df2d54fbe95
+ENV PACKETBEAT_SHA1=6586e402ed34a65c3efd11a9dcea72df07f59afb
 
 # add our user and group first to make sure their IDs get assigned consistently
 RUN groupadd --gid 1000 -r beat && useradd -r -m -g beat --uid 1000 beat
