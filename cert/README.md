@@ -1,7 +1,8 @@
 Auto Generate Certificate
 ===
 
-https://jamielinux.com/docs/openssl-certificate-authority/
+* https://jamielinux.com/docs/openssl-certificate-authority/
+* https://www.feistyduck.com/library/openssl-cookbook/online/ch-openssl.html
 
 ## Generate Self Signed Certificate
 ./build/genCert.sh setup
