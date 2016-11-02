@@ -16,7 +16,7 @@ registry:
   volumes:
     - ./certs:/certs:ro
     - ./auth:/auth:ro
-    - /data/download/docker-registry/lib:/var/lib/registry
+    - ./data:/var/lib/registry
 
 registryUI:
   restart: always
