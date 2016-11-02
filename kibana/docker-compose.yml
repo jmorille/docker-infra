@@ -1,23 +1,37 @@
-elasticsearch:
-  restart: always
-  image: elasticsearch:5
-  ports:
-    - 9200:9200
-    - 9300:9300
-  expose:
-    - 9200
-  volumes:
-#    - ./config:/usr/share/elasticsearch/config
-    - ./esdata:/usr/share/elasticsearch/data
-    - ./log:/var/log/elasticsearch
-  environment:
-    ES_JAVA_OPTS: "-Xms2g -Xmx2g"
-    es.network.bind_host: 0.0.0.0
+version: '2'
 
-kibana:
-  restart: always
-  image: kibana:5
-  ports:
-    - 5601:5601
-  links:
-   - elasticsearch:elasticsearch
+services:
+  elasticsearch:
+    image: jmorille/elasticsearch
+    build:
+      context: .
+      dockerfile: Dockerfile-elasticsearch
+    restart: always
+    ports:
+      - 9200:9200
+      - 9300:9300
+    expose:
+      - 9200
+    volumes:
+  #    - ./config:/usr/share/elasticsearch/config
+      - ./esdata:/usr/share/elasticsearch/data
+      - ./log:/var/log/elasticsearch
+    environment:
+      - ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+  kibana:
+    image: jmorille/kibana
+    build:
+      context: .
+      dockerfile: Dockerfile-kibana
+    restart: always
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+    environment:
+      - ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+#      - ELASTICSEARCH_PORT_6379_TCP_ADDR=elasticsearch
+#      - ELASTICSEARCH_PORT_6379_TCP_PORT=9200
+#volumes:
+#  es-data:
+#    driver: local
