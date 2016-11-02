@@ -1,5 +1,12 @@
 Kibana
 ======
+##
+To set this value permanently, update the *vm.max_map_count* setting in */etc/sysctl.conf*
+
+```
+sysctl -w vm.max_map_count=262144
+```
+
 
 ## Build
 ```
@@ -23,3 +30,11 @@ docker run --rm -it jmorille/kibana /bin/bash
 ```
 docker run --rm -it --net=host jmorille/kibana /bin/bash
 ```
+
+## Install X-pack licence
+```
+curl -XPUT -u elastic 'http://127.0.0.1:9200/_xpack/license?acknowledge=true' -d @license.json
+```
+
+TODO https://www.elastic.co/guide/en/x-pack/current/ssl-tls.html
+

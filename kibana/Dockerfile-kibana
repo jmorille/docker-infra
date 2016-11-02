@@ -1,4 +1,12 @@
 FROM kibana:5
 
 # Install Plugins
-RUN /usr/share/kibana/bin/kibana-plugin install x-pack
+RUN /usr/share/kibana/bin/kibana-plugin install x-pack \
+ && echo "#" >> /etc/kibana/kibana.yml   \
+ && echo "# ---------------------------------- X-Pack -----------------------------------" >> /etc/kibana/kibana.yml  \
+ && echo "#" >> /etc/kibana/kibana.yml    \
+ && echo "xpack.security.enabled=false" >> /etc/kibana/kibana.yml   \
+ && echo "xpack.graph.enabled=false" >> /etc/kibana/kibana.yml      \
+ && echo "xpack.watcher.enabled=false" >> /etc/kibana/kibana.yml    \
+ && echo "xpack.reporting.enabled=false" >> /etc/kibana/kibana.yml  \
+ && cat /etc/kibana/kibana.yml
