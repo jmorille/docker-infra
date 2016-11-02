@@ -17,7 +17,7 @@ services:
       - ./esdata:/usr/share/elasticsearch/data
       - ./log:/var/log/elasticsearch
     environment:
-      - ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+      - ES_JAVA_OPTS: -Xms2g -Xmx2g
   kibana:
     image: jmorille/kibana
     build:
@@ -29,7 +29,7 @@ services:
     depends_on:
       - elasticsearch
     environment:
-      - ES_JAVA_OPTS: "-Xms2g -Xmx2g"
+#      - ES_JAVA_OPTS: "-Xms2g -Xmx2g"
 #      - ELASTICSEARCH_PORT_6379_TCP_ADDR=elasticsearch
 #      - ELASTICSEARCH_PORT_6379_TCP_PORT=9200
 #volumes:
