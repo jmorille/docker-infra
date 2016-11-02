@@ -27,6 +27,7 @@ services:
       dockerfile: Dockerfile-kibana
       args:
         https_proxy: $https_proxy
+        http_proxy: $http_proxy
     restart: always
     ports:
       - 5601:5601
