@@ -6,6 +6,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-elasticsearch
+      args:
+        https_proxy: $https_proxy
     restart: always
     ports:
       - 9200:9200
@@ -23,6 +25,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile-kibana
+      args:
+        https_proxy: $https_proxy
     restart: always
     ports:
       - 5601:5601
