@@ -7,14 +7,15 @@ RUN usermod -u 1000 elasticsearch
 # RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install jettro/elasticsearch-gui
 
 # X-Pack
-RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch x-pack \
- && echo "#" >> /etc/elasticsearch/elasticsearch.yml   \
+RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch x-pack
+RUN echo "#" >> /etc/elasticsearch/elasticsearch.yml   \
  && echo "# ---------------------------------- X-Pack -----------------------------------" >> /etc/elasticsearch/elasticsearch.yml  \
  && echo "#" >> /etc/elasticsearch/elasticsearch.yml    \
- && echo "xpack.security.enabled=false" >> /etc/elasticsearch/elasticsearch.yml   \
- && echo "xpack.graph.enabled=false" >> /etc/elasticsearch/elasticsearch.yml      \
- && echo "xpack.watcher.enabled=false" >> /etc/elasticsearch/elasticsearch.yml    \
- && echo "xpack.reporting.enabled=false" >> /etc/elasticsearch/elasticsearch.yml  \
+ && echo "xpack.security.enabled: false" >> /etc/elasticsearch/elasticsearch.yml   \
+ && echo "xpack.monitoring.enabled: false" >> /etc/elasticsearch/elasticsearch.yml      \
+ && echo "xpack.graph.enabled: false" >> /etc/elasticsearch/elasticsearch.yml      \
+ && echo "xpack.watcher.enabled: false" >> /etc/elasticsearch/elasticsearch.yml    \
+ && echo "xpack.reporting.enabled: false" >> /etc/elasticsearch/elasticsearch.yml  \
  && cat /etc/elasticsearch/elasticsearch.yml
 
 

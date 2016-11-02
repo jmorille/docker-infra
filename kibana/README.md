@@ -36,5 +36,10 @@ docker run --rm -it --net=host jmorille/kibana /bin/bash
 curl -XPUT -u elastic 'http://127.0.0.1:9200/_xpack/license?acknowledge=true' -d @license.json
 ```
 
+TODO https://www.elastic.co/guide/en/x-pack/current/installing-xpack.html
 TODO https://www.elastic.co/guide/en/x-pack/current/ssl-tls.html
 
+xpack.security.enabled=false
+xpack.graph.enabled=false
+xpack.watcher.enabled=false
+xpack.reporting.enabled=false
