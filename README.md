@@ -19,6 +19,11 @@ $ docker rm -v -f $(docker ps -a -q)
 $ docker rmi $(docker images | grep "^<none>" | awk '{print $3}')
 ```
 
+## Delete all images
+```
+$ docker rmi $(docker images -q')
+```
+
 ## Start docker-compose
 ```
 $ docker-compose up -d IMAGES
