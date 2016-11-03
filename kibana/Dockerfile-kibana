@@ -1,7 +1,17 @@
 FROM kibana:5
 
 # Install Plugins
-RUN /usr/share/kibana/bin/kibana-plugin install x-pack
+
+# X-Pack
+# ########
+# Proxy OffLine File : wget https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-5.0.0.zip
+ADD x-pack-5.0.0.zip /tmp/x-pack-5.0.0.zip
+RUN /usr/share/kibana/bin/kibana-plugin install file:///tmp/x-pack-5.0.0.zip
+
+# No Proxy
+#RUN /usr/share/kibana/bin/kibana-plugin install x-pack
+
+# Configuration
 RUN echo "#" >> /etc/kibana/kibana.yml   \
  && echo "# ---------------------------------- X-Pack -----------------------------------" >> /etc/kibana/kibana.yml  \
  && echo "#" >> /etc/kibana/kibana.yml    \
