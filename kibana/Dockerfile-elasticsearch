@@ -10,7 +10,6 @@ FROM elasticsearch:5
 RUN usermod -u 1000 elasticsearch
 
 # Plugins : https://www.elastic.co/guide/en/elasticsearch/plugins/5.x/installation.html
-
 # RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install jettro/elasticsearch-gui
 
 
@@ -19,8 +18,8 @@ RUN usermod -u 1000 elasticsearch
 # X-Pack
 # ########
 # Proxy OffLine File : wget https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-5.0.0.zip
-ADD x-pack-5.0.0.zip /tmp/x-pack-5.0.0.zip
-RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install file:///tmp/x-pack-5.0.0.zip && rm -f /tmp/x-pack-5.0.0.zip
+#ADD x-pack-5.0.0.zip /tmp/x-pack-5.0.0.zip
+#RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install file:///tmp/x-pack-5.0.0.zip && rm -f /tmp/x-pack-5.0.0.zip
 
 # Proxy curl download
 #RUN set -x \
@@ -31,16 +30,15 @@ RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install file:///tmp/x-pack
 #RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch x-pack
 
 # Configuration
-
-RUN echo "#" >> /etc/elasticsearch/elasticsearch.yml   \
- && echo "# ---------------------------------- X-Pack -----------------------------------" >> /etc/elasticsearch/elasticsearch.yml  \
- && echo "#" >> /etc/elasticsearch/elasticsearch.yml    \
- && echo "xpack.security.enabled: false" >> /etc/elasticsearch/elasticsearch.yml   \
- && echo "xpack.monitoring.enabled: false" >> /etc/elasticsearch/elasticsearch.yml      \
- && echo "xpack.graph.enabled: false" >> /etc/elasticsearch/elasticsearch.yml      \
- && echo "xpack.watcher.enabled: false" >> /etc/elasticsearch/elasticsearch.yml    \
- && echo "xpack.reporting.enabled: false" >> /etc/elasticsearch/elasticsearch.yml  \
- && cat /etc/elasticsearch/elasticsearch.yml
+#RUN echo "#" >> /etc/elasticsearch/elasticsearch.yml   \
+# && echo "# ---------------------------------- X-Pack -----------------------------------" >> /etc/elasticsearch/elasticsearch.yml  \
+# && echo "#" >> /etc/elasticsearch/elasticsearch.yml    \
+# && echo "xpack.security.enabled: false" >> /etc/elasticsearch/elasticsearch.yml   \
+# && echo "xpack.monitoring.enabled: false" >> /etc/elasticsearch/elasticsearch.yml      \
+# && echo "xpack.graph.enabled: false" >> /etc/elasticsearch/elasticsearch.yml      \
+# && echo "xpack.watcher.enabled: false" >> /etc/elasticsearch/elasticsearch.yml    \
+# && echo "xpack.reporting.enabled: false" >> /etc/elasticsearch/elasticsearch.yml  \
+# && cat /etc/elasticsearch/elasticsearch.yml
 
 
 # RUN elasticsearch-plugin list
