@@ -1,15 +1,12 @@
 FROM elasticsearch:5
 
 # Proxy
-ENV  ES_JAVA_OPTS="$ES_JAVA_OPTS -Dhttps.proxyHost=proxy.agrica.loc -Dhttps.proxyPort=8000 -Dhttps.proxyUser=t_yum -Dhttps.proxyPassword=L1nuxYum"
-ENV  ES_JAVA_OPTS="$ES_JAVA_OPTS -Djava.net.useSystemProxies=true"
-RUN echo $ES_JAVA_OPTS
+# ENV  ES_JAVA_OPTS="$ES_JAVA_OPTS -Dhttps.proxyHost=proxy.agrica.loc -Dhttps.proxyPort=8000 -Dhttps.proxyUser=t_yum -Dhttps.proxyPassword=L1nuxYum"
+# ENV  ES_JAVA_OPTS="$ES_JAVA_OPTS -Djava.net.useSystemProxies=true"
 
 
 
 # ENV  ES_JAVA_OPTS="$ES_JAVA_OPTS -Dhttps.proxyHost=proxy.agrica.loc -Dhttps.proxyPort=8000 -Dhttps.proxyUser=t_yum -Dhttps.proxyPassword=L1nuxYum -Dhttp.nonProxyHosts='localhost|127.0.0.1|10.*.*.*|*.agrica.loc|integ1'"
-ENV  ES_JAVA_OPTS = "$ES_JAVA_OPTS -Djava.net.useSystemProxies=true"
- -Dhttp.proxyHost=proxy.agrica.loc -Dhttp.proxyPort=8000 -Dhttp.proxyUser=t_yum -Dhttp.proxyPassword=L1nuxYum
 RUN usermod -u 1000 elasticsearch
 
 # Plugins : https://www.elastic.co/guide/en/elasticsearch/plugins/5.x/installation.html
