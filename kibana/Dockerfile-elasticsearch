@@ -20,7 +20,7 @@ RUN usermod -u 1000 elasticsearch
 # ########
 # Proxy OffLine File : wget https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-5.0.0.zip
 ADD x-pack-5.0.0.zip /tmp/x-pack-5.0.0.zip
-RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install file:///tmp/x-pack-5.0.0.zip
+RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install file:///tmp/x-pack-5.0.0.zip && rm -f /tmp/x-pack-5.0.0.zip
 
 # Proxy curl download
 #RUN set -x \
