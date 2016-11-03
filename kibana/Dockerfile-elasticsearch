@@ -1,13 +1,40 @@
 FROM elasticsearch:5
 
+# Proxy
+ENV  ES_JAVA_OPTS="$ES_JAVA_OPTS -Dhttps.proxyHost=proxy.agrica.loc -Dhttps.proxyPort=8000 -Dhttps.proxyUser=t_yum -Dhttps.proxyPassword=L1nuxYum"
+ENV  ES_JAVA_OPTS="$ES_JAVA_OPTS -Djava.net.useSystemProxies=true"
+RUN echo $ES_JAVA_OPTS
+
+
+
+# ENV  ES_JAVA_OPTS="$ES_JAVA_OPTS -Dhttps.proxyHost=proxy.agrica.loc -Dhttps.proxyPort=8000 -Dhttps.proxyUser=t_yum -Dhttps.proxyPassword=L1nuxYum -Dhttp.nonProxyHosts='localhost|127.0.0.1|10.*.*.*|*.agrica.loc|integ1'"
+ENV  ES_JAVA_OPTS = "$ES_JAVA_OPTS -Djava.net.useSystemProxies=true"
+ -Dhttp.proxyHost=proxy.agrica.loc -Dhttp.proxyPort=8000 -Dhttp.proxyUser=t_yum -Dhttp.proxyPassword=L1nuxYum
 RUN usermod -u 1000 elasticsearch
 
 # Plugins : https://www.elastic.co/guide/en/elasticsearch/plugins/5.x/installation.html
 
 # RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install jettro/elasticsearch-gui
 
+
+
+
 # X-Pack
-RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch x-pack
+# ########
+# Proxy OffLine File : wget https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-5.0.0.zip
+ADD x-pack-5.0.0.zip /tmp/x-pack-5.0.0.zip
+RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install file:///tmp/x-pack-5.0.0.zip
+
+# Proxy curl download
+#RUN set -x \
+#	&& wget -O /tmp/x-pack-5.0.0.zip  "https://artifacts.elastic.co/downloads/packs/x-pack/x-pack-5.0.0.zip" \
+#	&& /usr/share/elasticsearch/bin/elasticsearch-plugin install file:///tmp/x-pack-5.0.0.zip
+
+# No Proxy
+#RUN /usr/share/elasticsearch/bin/elasticsearch-plugin install --batch x-pack
+
+# Configuration
+
 RUN echo "#" >> /etc/elasticsearch/elasticsearch.yml   \
  && echo "# ---------------------------------- X-Pack -----------------------------------" >> /etc/elasticsearch/elasticsearch.yml  \
  && echo "#" >> /etc/elasticsearch/elasticsearch.yml    \
