@@ -21,7 +21,7 @@ $ docker rmi $(docker images | grep "^<none>" | awk '{print $3}')
 
 ## Delete all images
 ```
-$ docker rmi $(docker images -q')
+$ docker rmi $(docker images -q)
 ```
 
 ## Start docker-compose
