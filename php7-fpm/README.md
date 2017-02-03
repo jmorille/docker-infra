@@ -18,3 +18,11 @@ docker push thor:5000/nginx
 docker run -ti jmorille/nginx /bin/bash
 ```
  
+ 
+## Linking container
+
+https://docs.docker.com/engine/userguide/networking/work-with-networks/#linking-containers-in-user-defined-networks
+https://www.guillaume-leduc.fr/une-autre-facon-dutiliser-php-fpm.html
+
+
+https://www.if-not-true-then-false.com/2011/nginx-and-php-fpm-configuration-and-optimizing-tips-and-tricks/
