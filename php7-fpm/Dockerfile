@@ -28,7 +28,7 @@ VOLUME ["/data/www"  ]
 # RUN cat /usr/local/etc/php-fpm.conf
 
 # Install dependencies for PHP extentions
-RUN docker-php-ext-install mbstring mysqli pdo pdo_mysql json
+RUN docker-php-ext-install mbstring mysqli pdo pdo_mysql json intl
 
 
 # Set UID for www-data user to 48 instead of 33
