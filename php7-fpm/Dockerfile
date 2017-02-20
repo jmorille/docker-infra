@@ -17,32 +17,26 @@ FROM php:7-fpm
 EXPOSE 9000
 VOLUME ["/data/www"  ]
 
+# WORKDIR /var/www/html
 
 # Install dependencies
 # #######################
 #Set timezone
 # RUN apk add --no-cache tzdata \
 #    && cp /usr/share/zoneinfo/`echo $PHP_DATE_TIMEZONE` /etc/localtime
-
-
-# Install dependencies for PHP extentions
-RUN docker-php-ext-install mbstring mysqli pdo pdo_mysql
-
 # Display Config
 # RUN cat /usr/local/etc/php-fpm.conf
 
-# Configure and install PHP extentions
-#RUN docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
-#    && pecl bundle -d /usr/src/php/ext redis \
-#    && rm /usr/src/php/ext/redis-*.tgz \
-#    && docker-php-ext-install gd pdo pdo_mysql pdo_pgsql xmlrpc mcrypt opcache redis zip
+# Install dependencies for PHP extentions
+RUN docker-php-ext-install mbstring mysqli pdo pdo_mysql json
 
 
 # Set UID for www-data user to 48 instead of 33
-RUN groupmod -g 48 www-data
+RUN groupmod -g 48 www-data \
+ && chown -R www-data:www-data /data/www
 
-RUN echo "<?php phpinfo(); ?>" > /data/www/info.php && \
-        chown -R www-data:www-data /data/www
+#RUN echo "<?php phpinfo(); ?>" > /data/www/info.php && \
+#        chown -R www-data:www-data /data/www
 
 
 
