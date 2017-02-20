@@ -1,6 +1,7 @@
  
 ==> TODO follow  : https://weakdh.org/sysadmin.html
 
+
 # Docker
 ## Build Images
 ```
@@ -18,7 +19,13 @@ docker push thor:5000/nginx
 ```
 docker run -ti jmorille/nginx /bin/bash
 ```
- 
+
+## Host configuration
+
+```
+ sudo  groupadd  -g 48  apache
+ sudo  useradd -u 48 -g48  apache
+```
  
 ## Some generator
  https://phpdocker.io/generator

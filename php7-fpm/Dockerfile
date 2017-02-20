@@ -26,7 +26,7 @@ VOLUME ["/data/www"  ]
 
 
 # Install dependencies for PHP extentions
-RUN docker-php-ext-install mbstring mysqli pdo pdo_mysql json
+RUN docker-php-ext-install mbstring mysqli pdo pdo_mysql
 
 # Display Config
 # RUN cat /usr/local/etc/php-fpm.conf
@@ -38,19 +38,12 @@ RUN docker-php-ext-install mbstring mysqli pdo pdo_mysql json
 #    && docker-php-ext-install gd pdo pdo_mysql pdo_pgsql xmlrpc mcrypt opcache redis zip
 
 
-# Set UID for www-data user to 33
-# RUN deluser xfs \
-#        && deluser www-data \
-#        && addgroup -g 33 -S www-data \
-#        && adduser -u 33 -D -S -G www-data -h /var/www -g www-data www-data
-
 # Set UID for www-data user to 48 instead of 33
-RUN groupmod -g 1002 www-data
+RUN groupmod -g 48 www-data
 
 RUN echo "<?php phpinfo(); ?>" > /data/www/info.php && \
         chown -R www-data:www-data /data/www
 
-# CMD ["/usr/local/sbin/php-fpm"]
 
 
 
