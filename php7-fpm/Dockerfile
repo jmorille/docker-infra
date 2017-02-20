@@ -45,7 +45,7 @@ RUN docker-php-ext-install mbstring mysqli pdo pdo_mysql json
 #        && adduser -u 33 -D -S -G www-data -h /var/www -g www-data www-data
 
 # Set UID for www-data user to 48 instead of 33
-RUN groupmod -g 48 www-data
+RUN groupmod -g 1002 www-data
 
 RUN echo "<?php phpinfo(); ?>" > /data/www/info.php && \
         chown -R www-data:www-data /data/www
