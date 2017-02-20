@@ -28,9 +28,10 @@ VOLUME ["/data/www"  ]
 # RUN cat /usr/local/etc/php-fpm.conf
 
 # Install dependencies for PHP extentions
-RUN apt-get update && apt-get install -y zlib1g-dev libicu-dev g++
-RUN docker-php-ext-configure intl /
-  && docker-php-ext-install mbstring mysqli pdo pdo_mysql json intl
+RUN apt-get update \
+ && apt-get install -y  apt-utils zlib1g-dev libicu-dev g++ \
+ && docker-php-ext-configure intl \
+ && docker-php-ext-install mbstring mysqli pdo pdo_mysql json intl
 
 
 # Set UID for www-data user to 48 instead of 33
