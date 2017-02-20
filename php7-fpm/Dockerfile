@@ -5,7 +5,7 @@ FROM php:7-fpm
 # Set environment variables to use them in PHP config files
 ENV FPM_PM static
 ENV FPM_PM_MAX_CHILDREN 4
-ENV PHP_DATE_TIMEZONE Europe/Moscow
+ENV PHP_DATE_TIMEZONE Europe/Paris
 ENV PHP_MEMORY_LIMIT 256M
 ENV PHP_POST_MAX_SIZE 20M
 ENV PHP_UPLOAD_MAX_SIZE 20M

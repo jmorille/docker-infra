@@ -43,3 +43,22 @@ xpack.security.enabled=false
 xpack.graph.enabled=false
 xpack.watcher.enabled=false
 xpack.reporting.enabled=false
+
+
+# Beats
+
+## PacketBeats
+
+### Load Beats Templates
+```
+curl -XPUT 'http://integ1:9200/_template/packetbeat' -d@/etc/packetbeat/packetbeat.template.json
+curl -XDELETE 'http://integ1:9200/packetbeat-*'
+```
+
+### Kibana
+```
+cd /usr/share/packetbeat
+./scripts/import_dashboards -es http://integ1:9200
+```
+
+
