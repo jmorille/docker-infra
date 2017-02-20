@@ -22,8 +22,8 @@ VOLUME ["/data/html", "/var/log/nginx", "/var/lib/nginx", "/data/cert" ]
 # Install dependencies
 # #######################
 #Set timezone
-RUN apk add --no-cache tzdata \
-    && cp /usr/share/zoneinfo/`echo $PHP_DATE_TIMEZONE` /etc/localtime
+# RUN apk add --no-cache tzdata \
+#    && cp /usr/share/zoneinfo/`echo $PHP_DATE_TIMEZONE` /etc/localtime
 
 # Install dependencies for PHP extentions
 RUN apk add --no-cache --virtual .php-extentions-deps \

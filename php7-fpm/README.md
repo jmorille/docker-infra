@@ -5,6 +5,7 @@
 ## Build Images
 ```
 docker build --rm -t jmorille/php7-fpm .
+docker build --build-arg http_proxy=$http_proxy  --build-arg https_proxy=$https_proxy  --rm -t jmorille/php7-fpm .
 ```
 
 ```
