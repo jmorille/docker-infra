@@ -47,7 +47,6 @@ RUN docker-php-ext-install mbstring mysqli pdo pdo_mysql json
 
 RUN echo "<?php phpinfo(); ?>" > /data/www/info.php && \
         chown -R www-data:www-data /data/www
-        chown -R www-data:www-data /data/www
 
 # CMD ["/usr/local/sbin/php-fpm"]
 
