@@ -27,7 +27,7 @@ VOLUME ["/data/html", "/var/log/nginx", "/var/lib/nginx", "/data/cert" ]
 
 # Install dependencies for PHP extentions
 RUN apt-get update \
-    && apt-get -y --no-install-recommends install  php7.1-mysql php-redis php7.1-ldap \
+    && apt-get -y --no-install-recommends install  php7.1-mysql php-redis php7.1-ldap php7.1-mbstring \
     && apt-get clean; rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
 
 

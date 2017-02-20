@@ -13,6 +13,7 @@ services:
     php:
         build:
            context: .
+            dockerfile: Dockerfile
            container_name: jmorille/php:7-fpm
         image: php:7-fpm
         volumes:
