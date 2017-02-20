@@ -26,7 +26,7 @@ VOLUME ["/data/www"  ]
 
 
 # Install dependencies for PHP extentions
-RUN docker-php-ext-install mbstring mysqli pdo pdo_mysql curl json
+RUN docker-php-ext-install mbstring mysqli pdo pdo_mysql json
 
 # Display Config
 # RUN cat /usr/local/etc/php-fpm.conf
