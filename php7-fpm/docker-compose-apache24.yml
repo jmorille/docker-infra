@@ -4,9 +4,9 @@ services:
     web:
         image: httpd:2.4
         ports:
-            - "8080:80"
+            - "80:80"
         volumes:
-            - ./code:/usr/local/apache2/htdocs/
+            - ./code:/data/www
             - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
         networks:
             - code-network
