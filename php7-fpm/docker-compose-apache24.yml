@@ -5,6 +5,10 @@ services:
         image: httpd:2.4
         ports:
             - "80:80"
+        environment:
+            JJ_SYS_ENV: "hipicahey"
+            JJ_SYS_ENV_NOT: "La la non"
+            APACHE_LOGS: "/usr/local/apache2/logs"
         volumes:
             - ./code:/data/www
             - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
