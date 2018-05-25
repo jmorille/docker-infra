@@ -2,12 +2,12 @@ version: '3.3'
 
 services:
     web:
-        image: nginx:latest
+        image: httpd:2.4
         ports:
             - "8080:80"
         volumes:
-            - ./code:/data/www
-            - ./site.conf:/etc/nginx/conf.d/default.conf
+            - ./code:/usr/local/apache2/htdocs/
+            - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
         networks:
             - code-network
     php:
